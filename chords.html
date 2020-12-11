@@ -4,229 +4,10 @@
 <meta charset="utf-8">
 <title>Chord Game</title>
 
-<style> 
-	#settings{
-		margin-bottom: 10px;
-		text-align: center;
-	}
+<link href="style.css" rel="stylesheet">
 
-    .wrap {
-	  width: 500px;
-	  height: 290px;
-	  position: absolute;
-	  top: 50%;
-	  margin-top: -145px;
-	  left: 50%;
-	  margin-left: -250px;
-	}
-
-	#svg {
-	  top: 30px;
-	}
-
-	rect.key {
-		stroke: black;
-		stroke-miterlimit: 1;
-	}
-	rect.key.white {
-		fill: white;
-		stroke-width: 4px;
-		width: 98.5043946px;
-		height: 463.871582px;
-	}
-
-	rect.black.key {
-		fill: black;
-		stroke-width: 5px;
-		width: 62.0385742px;
-		height: 281.9633789px;
-	}
-
-	.key.highlight{
-		fill: #8da0cb !important;
-	}
-
-	.key.highlight.triad__prime{
-		fill: #fc8d62 !important;
-	}
-	.key.highlight.triad__third{
-		fill: #8da0cb !important;
-	}
-	.key.highlight.triad__fifth{
-		fill: #66c2a5 !important;
-	}
-
-	#solution{
-		text-align: center;
-		font-weight: lighter;
-		font-family: sans-serif;
-		font-size: 3em;
-		background-color: #8da0cb;
-		width: 30%;
-		position: relative;
-		height: 2.65em;
-		margin-left: 50%;
-		left: -15%;
-		padding-top: 20px;
-		border-radius: 13px;
-	}
-	
-</style>
+<script src="music-theory.js"></script>
 <script type="text/javascript">
-
-/* ------------------------------------------------------------------------
- * Data
- * ------------------------------------------------------------------------ */
-
-// used as keys to acces mode-related information
-const modes = ['major', 'minor'];
-
-const FLAT_SYMBOL = 'b'; // b ♭
-const SHARP_SYMBOL = '#'; // ♯
-
-const baseNotes = ['C', 'D', 'E', 'F', 'G', 'A', 'B'];
-
-// 13 keys, one for each key on the piano plus the enharmonic equivalent of G♭ (= F♯)
-const keys = {
-	'major': {
-		//           0  1  2  3  4  5  6  7  8  9  10 11 12
-		//           G♭ D♭ A♭ E♭ B♭ F  C  G  D  A  E  B  F♯
-		'baseNote': [4, 1, 5, 2, 6, 3, 0, 4, 1, 5, 2, 6, 3]
-	},
-	'minor': {
-		//			 E♭ B♭ F  C  G  D  A  E  B  F♯ C♯ G♯ D♯
-		'baseNote': [2, 6, 3, 0, 4, 1, 5, 2, 6, 3, 0, 4, 1]
-	},
-	'accidentals': {
-		'sharp': [0, 0, 0, 0, 0, 0, 0, 1, 2, 3, 4, 5, 6],
-		'flat':  [6, 5, 4, 3, 2, 1, 0, 0, 0, 0, 0, 0, 0]
-	}
-};
-
-// the raised/lowered notes in order of their appearance in the circle of fifths
-// e.g., if you have 3 sharps, take the first 3 elements of the sharps array to see which notes are raised
-const accidentals = {
-	//        f♯ c♯ g♯ d♯ a♯ e♯ b♯
-	'sharp': [3, 0, 4, 1, 5, 2, 6],
-	//        b♭ e♭ a♭ d♭ g♭ c♭ f♭
-	'flat':  [6, 2, 5, 1, 4, 0, 3],
-};
-
-// in german, we want B -> H and B♭ -> B
-const germanNames = function(englishName){return englishName.replace('B', 'H').replace('H'+FLAT_SYMBOL, 'B')};
-const identity = function(name){return name};
-
-const NAMING = {
-	'german': {
-		'suffix': {'major': '-Dur', 'minor': '-Moll'}, 
-		'lowerCaseMinor': true, 
-		'nameTranslator': germanNames,
-		'inversion': ['Grundstellung', '1. Umkehrung', '2. Umkehrung']},
-	'english': {
-		'suffix': {'major': ' major', 'minor': ' minor'}, 
-		'lowerCaseMinor': false, 
-		'nameTranslator': identity,
-		'inversion': ['Root position', '1. inversion', '2. inversion']}
-};
-
-/* ------------------------------------------------------------------------
- * Logical Functions
- * ------------------------------------------------------------------------ */
-
-// generate random integer between 0 and an upper bound (exclusive)
-function randInt(upperExclusive){
-	return Math.floor(Math.random() * upperExclusive);
-}
-
-// takes a note name, e.g., "C#" and returns the enharmonic equivalent, e.g., "Db"
-function enharmonicEquivalent(noteName){
-	
-	var baseNote = baseNotes.indexOf(noteName[0]);
-
-	if(noteName.includes(SHARP_SYMBOL)) return baseNotes[baseNote+1] + FLAT_SYMBOL;
-	if(noteName.includes(FLAT_SYMBOL)) return baseNotes[baseNote-1] + SHARP_SYMBOL;
-
-}
-
-// returns the name of the note at the given base note offset (e.g., 0 = C, 1 = D ... 6 = B) 
-// within the given key (e.g., 9 = A major)
-// e.g., applyAccidental(9, 0) = 'C♯'
-function applyAccidental(key, noteOffset){
-
-	// e.g. [3, 0, 4] for f♯, c♯, g♯, in A major
-	var numSharps = keys.accidentals.sharp[key];
-	var sharps = accidentals.sharp.slice(0, numSharps);
-	
-	var numFlats = keys.accidentals.flat[key];
-	var flats = accidentals.flat.slice(0, numFlats);
-	
-	// e.g. C
-	var noteName = baseNotes[noteOffset];
-	
-	// append sharp or flat
-	if(sharps.includes(noteOffset)) noteName += SHARP_SYMBOL;
-	if(flats.includes(noteOffset)) noteName += FLAT_SYMBOL;
-	
-	return noteName;
-}
-
-// get base note that lies a certain number of steps above another base note in a certain key
-// e.g., to find the third above A in A major, use addNote(9, 5, 2) which gives 0 (=C)
-// so this doesn't yet consider accidentals
-function addNote(key, noteOffset, steps){
-	var note = (noteOffset + steps) % 7;
-	return applyAccidental(key, note);
-}
-
-function triad(key, mode){
-	var baseNote = keys[mode].baseNote[key];
-	var notes = [
-		applyAccidental(key, baseNote),  // base
-		addNote(key, baseNote, 2), 		 // third
-		addNote(key, baseNote, 4),		 // fifth
-		//,addNote(key, baseNote, 6)	 // seventh
-	];
-
-	return notes;
-}
-
-function randomTriad(maxAccidentals){
-	var key = randInt(1 + maxAccidentals*2) + (6 - maxAccidentals);
-	var mode = modes[randInt(2)];
-	return {
-		'mode': mode,
-		'inversion': randInt(3),
-		'chord': triad(key, mode)};
-}
-
-// returns the n-th inversion of the chord
-// e.g., n = 1: first inversion C E G -> E G C
-// e.g., n = 2: second inversion C E G -> G C E
-function inversion(n, chord){
-	var inverted = [...chord]; 
-	for (var i = 0; i < n; i++) {
-		// cycle the contents of the Array by appending the removed first element
-		inverted.push(inverted.shift());
-	}
-	return inverted;
-}
-
-/* ------------------------------------------------------------------------
- * State
- * ------------------------------------------------------------------------ */
-
-// the notes of the currently random chord, e.g, ['Ab', 'C', 'Eb'] for Ab major
-var currentChord = [];
-
-// the mode of the current chord, e.g., modes[0] = 'major'
-var currentMode = modes[0];
-
-// the current random triad inversion, e.g., 0 for base position, 1 for first inversion
-var currentInversion = 0;
-
-// the range of the circle of fifths that is covered. This will generate triads from keys C ± maxAccidentals, 
-// e.g., 1 => F, C, and G 
-var maxAccidentals = 6;
 
 // the current language
 var naming = NAMING['german'];
@@ -239,7 +20,7 @@ var naming = NAMING['german'];
 		Sprache <select id="input_language"><option>german</option><option>english</option></select>
 	</div>
 
-	<svg onclick="nextChord()" xmlns="&ns_svg;" xmlns:xlink="&ns_xlink;" xmlns:a="http://ns.adobe.com/AdobeSVGViewerExtensions/3.0/"
+	<svg xmlns="&ns_svg;" xmlns:xlink="&ns_xlink;" xmlns:a="http://ns.adobe.com/AdobeSVGViewerExtensions/3.0/"
 	 width="100%" height="400" viewBox="-2 -2 1400 480" xml:space="preserve">
 		<defs>
 		</defs>
@@ -261,7 +42,9 @@ var naming = NAMING['german'];
 			<rect class="white key A" x="1201.015625"/>
 			<rect class="white key B" x="1300.8925781"/>
 
-			<!-- black keys (need to be declared after the white keys to render them above the white keys) -->
+			<!-- black keys (need to be declared after the white keys to render them above the white keys) 
+				 They have their notes annotated to add a css class for each accidental,
+				 e.g., note=D ==> add D# and Eb as CSS classes -->
 			<rect class="black key" note="C" x="70.7202148"/>
 			<rect class="black key" note="D" x="171.2246094"/>
 			<rect class="black key" note="F" x="370.5078125"/>
@@ -275,96 +58,42 @@ var naming = NAMING['german'];
 			<rect class="black key" note="A" x="1269.7988281"/> 
 		</g>
 	</svg>
-	
-	<div id="solution"></div>
-	
-	
+	<input type="button" value="Nächster Akkord" id="nextTask" onclick="nextChord()" />
+	<!-- <div id="solution"></div> -->
+	<table id="solution-options" style="width:100%; margin-top: 16px; font-weight: bold; font-size: large;">
+		<!-- <tr>
+			<td>2.</td><td>2.</td><td>2.</td><td>2.</td><td>2.</td><td>2.</td><td>2.</td><td>2.</td><td>2.</td><td>2.</td><td>2.</td><td>2.</td>
+		</tr>
+		<tr>
+			<td>1.</td><td>1.</td><td>1.</td><td>1.</td><td>1.</td><td>1.</td><td>1.</td><td>1.</td><td>1.</td><td>1.</td><td>1.</td><td>1.</td>
+		</tr> -->
+		<tr>
+			<td>6♭</td><td>5♭</td><td>4♭</td><td>3♭</td><td>2♭</td><td>♭</td><td></td><td>♯</td><td>2♯</td><td>3♯</td><td>4♯</td><td>5♯</td><td>6♯</td>
+		</tr>
+		<tr class="solution option major">
+			<td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td>
+		</tr>
+		<tr class="solution option minor">
+			<td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td>
+		</tr>
+		<!-- <tr>
+			<td>1.</td><td>1.</td><td>1.</td><td>1.</td><td>1.</td><td>1.</td><td>1.</td><td>1.</td><td>1.</td><td>1.</td><td>1.</td><td>1.</td>
+		</tr>
+		<tr>
+			<td>2.</td><td>2.</td><td>2.</td><td>2.</td><td>2.</td><td>2.</td><td>2.</td><td>2.</td><td>2.</td><td>2.</td><td>2.</td><td>2.</td>
+		</tr> -->
+
+	</table>
+	<div id="stats" style="text-align: center;">
+		Richtig: <span id="correctAnswers">23</span>/<span id="totalAnswers">30</span> = <span id="percentageCorrectAnswers">34</span>%<!-- <br/> -->
+		<input type="button" value="Reset" onclick="if(confirm('Reset?')) resetStats()"/>
+	</div>
+
+	<script type="text/javascript" src="recognition-task.js"/>
+
 	<script type="text/javascript">
-
-		// takes an array of note names (e.g., ['Eb, G, Bb']) and highlights the according keys on the piano
-		function highlight(){
-			
-			var chord = inversion(currentInversion, currentChord);
-
-			// the chord's note to highlight, e.g., first, second third, maybe fourth
-			var toHighlight = 0;
-			for (var i = 0; i < keyElements.length; i++) {
-				// reset previous highlighting
-				keyElements[i].classList.remove('highlight', 'triad__prime', 'triad__third', 'triad__fifth');
-				// apply new highlighting
-				if(keyElements[i].classList.contains(chord[toHighlight])){
-					keyElements[i].classList.add('highlight');
-					toHighlight++;
-				}
-			}
-
-			// write name of the chord to the solution field
-			solution.data = naming.nameTranslator(currentChord[0]) + naming.suffix[currentMode] + ", " + naming.inversion[currentInversion];
-
-		}
-
-		// colors the highlighted keys according to their function: prime, third, or fifth
-		function highlightSolution(){
-			
-			// use this classes to show which key belongs to which note
-			var highlightClasses = inversion(currentInversion, ['triad__prime', 'triad__third', 'triad__fifth']);
-			var chord = inversion(currentInversion, currentChord);
-
-			// the chord's note to highlight, e.g., first, second third, maybe fourth
-			var toHighlight = 0;
-			for (var i = 0; i < keyElements.length; i++) {
-				// reset previous highlighting
-				keyElements[i].classList.remove('highlight', 'triad__prime', 'triad__third', 'triad__fifth');
-				// apply new highlighting
-				if(keyElements[i].classList.contains(chord[toHighlight])){
-					keyElements[i].classList.add('highlight');
-					keyElements[i].classList.add(highlightClasses[toHighlight]);
-					toHighlight++;
-				}
-			}
-		}
-
-		function nextChord(){
-			random = randomTriad(maxAccidentals); 
-			currentChord = random['chord'];
-			currentInversion = random['inversion'];
-			currentMode = random['mode'];
-			highlight();
-		}
-
-		// add classes the piano keys that state their note name(s)
-		// get the SVG elements that represent the piano keys
-		var keyElements = Array.from(document.getElementsByClassName('key'));
-		// sort the keys by horizontal position, such that we get C, C#, D, D#, etc.
-		keyElements.sort((r1,r2)=>r1.attributes.x.value - r2.attributes.x.value)
-
-		// add css classes to black keys that use SHARP_SYMBOL and FLAT_SYMBOL
-		Array.from(document.getElementsByClassName('black key')).forEach(rect => {
-			baseNote = rect.attributes.note.value;
-			sharp = baseNote + SHARP_SYMBOL;
-			flat = enharmonicEquivalent(sharp);
-			rect.classList.add(sharp, flat);
-		});
-
-		// wire options control elements to state variables
-		document.getElementById('input_language').onchange = function(){
-			naming = NAMING[this.value]
-			highlight();
-		};
-
-		document.getElementById('input_maxAccidentals').onchange = function(){
-			maxAccidentals = this.value;
-			document.getElementById('label_maxAccidentals').innerText = maxAccidentals;
-		};
-		document.getElementById('input_maxAccidentals').onchange();
-
-		// show solution on hover
-		// using css :hover doesn't work as well, as the text can accidentally be highlighted when dragging the mouse (giving away the solution)
-		solution.onmouseenter = function(){this.innerText = this.data; highlightSolution();}
-		solution.onmouseleave = function(){this.innerText = ""; highlight(); }
-
-		// generate first chord
-		nextChord();
-
+		
 	</script>
+
+
 </body>
