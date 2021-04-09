@@ -46,13 +46,17 @@ rect.black.key {
 }
 
 .key.highlight.triad__prime{
-	fill: #fc8d62 !important;
+	/* should stick out, stronger red */
+	fill:  #fb8150 !important; 
 }
 .key.highlight.triad__third{
-	fill: #8da0cb !important;
+	/* light blue */
+	fill:  #a8b6d7 !important;
+	/* brewer blue #8da0cb */
 }
 .key.highlight.triad__fifth{
-	fill: #66c2a5 !important;
+	/* light red (more compatible to prime than third) */
+	fill: #fdc9b5 !important;
 }
 
 #solution{
@@ -112,6 +116,12 @@ input#nextTask{
 a.wrong{
 	background: lightsalmon;
 }
+
 a.correct{
 	background: springgreen;
+}
+
+div#stats{
+	margin-top: 10px;
+	text-align: center;
 }

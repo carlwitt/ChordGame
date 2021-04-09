@@ -145,7 +145,7 @@ function dragOut(mouseEvent){
 	var element = mouseEvent.srcElement;
 
 	// on drag, i.e. primary mouse button is down
-	if(mouseEvent.buttons == 1){
+	if(mouseEvent.buttons == 1 || mouseEvent.type.toLowerCase() === 'touchmove'){
 
 		// ignore events triggered during an interaction with another scroller
 		if(draggedScroller != undefined && element != draggedScroller) return;
@@ -189,6 +189,7 @@ function scroller(entries){
 	div.classList.add("scroller");
 	entries.forEach(entry => div.appendChild(entry)); //div.appendChild(document.createElement('br'));});
 	div.onmouseleave = dragOut;
+	div.ontouchmove = dragOut;
 	return div;
 }
 
