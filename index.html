@@ -93,12 +93,14 @@
 		// wire options control elements to state variables
 
 		// number of accidentals
-		document.getElementById('input_maxAccidentals').onchange = function(){
+		const accidentalsInput = document.getElementById('input_maxAccidentals');
+		accidentalsInput.value = state.maxAccidentals;
+		accidentalsInput.onchange = function(){
 			state.maxAccidentals = this.value;
 			document.getElementById('label_maxAccidentals').innerText = state.maxAccidentals;
 			persistState();
 		};
-		document.getElementById('input_maxAccidentals').onchange();
+		accidentalsInput.onchange();
 
 		// language select
 		const languageInput = document.getElementById('input_language');

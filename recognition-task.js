@@ -23,7 +23,7 @@ function persistState(){
 var defaultState = {
 	// the range of the circle of fifths that is covered. This will generate triads from keys C ± maxAccidentals, 
 	// e.g., 1 => F, C, and G 
-	'maxAccidentals': 6,
+	'maxAccidentals': 5,
 	'language': 'german',
 	'correctAnswers': 0,
 	'wrongAnswers': 0
@@ -32,11 +32,12 @@ var defaultState = {
 // replace local storage by a simple object in case it is not available
 // options won't be persisted, but we don't get exceptions
 try {
-	localStorage.setItem(mod, mod);
-	localStorage.removeItem(mod);
+	localStorage.setItem('test', 'test');
+	localStorage.removeItem('test');
 	storage = localStorage;
 } catch (e) {
 	storage = {};
+	console.log("No local storage available.")
 }
 
 // load previous state if available from local storage
