@@ -6,18 +6,18 @@
 
 <link href="style.css" rel="stylesheet">
 
-<script src="music-theory.js"></script>
-<script type="text/javascript">
+<script type="text/javascript" src="music-theory.js"></script>
+<script type="text/javascript" src="recognition-task.js"></script>
 
-// the current language
-var naming = NAMING['german'];
-
-</script>
 </head>
 <body>
 	<div id="settings">
 		Tonarten mit bis zu <span id="label_maxAccidentals"></span> Vorzeichen <input type="range" id="input_maxAccidentals" min="0" max="6" value="5" /> 
 		Sprache <select id="input_language"><option>german</option><option>english</option></select>
+	</div>
+	<div id="stats">
+		Richtig: <span id="correctAnswers"></span>/<span id="totalAnswers"></span> = <span id="percentageCorrectAnswers"></span>%<!-- <br/> -->
+		<input type="button" value="Reset" onclick="if(confirm('Reset?')) resetStats()"/>
 	</div>
 
 	<svg xmlns="&ns_svg;" xmlns:xlink="&ns_xlink;" xmlns:a="http://ns.adobe.com/AdobeSVGViewerExtensions/3.0/"
@@ -84,15 +84,76 @@ var naming = NAMING['german'];
 		</tr> -->
 
 	</table>
-	<div id="stats">
-		Richtig: <span id="correctAnswers">23</span>/<span id="totalAnswers">30</span> = <span id="percentageCorrectAnswers">34</span>%<!-- <br/> -->
-		<input type="button" value="Reset" onclick="if(confirm('Reset?')) resetStats()"/>
-	</div>
+	<table id="solution-options-inversion">
+		<tr><td class="base"></td><td class="first"></td><td class="second"></td></tr>
+	</table>
 
-	<script type="text/javascript" src="recognition-task.js"/>
 
 	<script type="text/javascript">
-		
+		// wire options control elements to state variables
+
+		// number of accidentals
+		document.getElementById('input_maxAccidentals').onchange = function(){
+			state.maxAccidentals = this.value;
+			document.getElementById('label_maxAccidentals').innerText = state.maxAccidentals;
+			persistState();
+		};
+		document.getElementById('input_maxAccidentals').onchange();
+
+		// language select
+		const languageInput = document.getElementById('input_language');
+		for(i=0; i<languageInput.options.length; i++){
+			if(languageInput.options[i].innerText == state.language) languageInput.selectedIndex = i;
+		}
+		document.getElementById('input_language').onchange = function(){
+			state.language = this.value;
+			persistState();
+			window.location.reload();
+		};
+	
+		// add classes the piano keys that state their note name(s)
+		// get the SVG elements that represent the piano keys
+		var keyElements = Array.from(document.getElementsByClassName('key'));
+		// sort the keys by horizontal position, such that we get C, C#, D, D#, etc.
+		keyElements.sort((r1,r2)=>r1.attributes.x.value - r2.attributes.x.value)
+
+		// add css classes to black keys that use SHARP_SYMBOL and FLAT_SYMBOL
+		Array.from(document.getElementsByClassName('black key')).forEach(rect => {
+			baseNote = rect.attributes.note.value;
+			sharp = baseNote + SHARP_SYMBOL;
+			flat = enharmonicEquivalent(sharp);
+			rect.classList.add(sharp, flat);
+		});
+
+		// list all major/minor chords as solution options in order of the circle of fifths
+		for(const mode of modes){
+			const options = document.querySelectorAll(`.solution.option.${mode} td`);
+			options.forEach(function(element, i){
+				// fill the table cell with the chord's base note name
+				const key = i;
+				const baseNote = applyAccidental(key, keys[mode].baseNote[key]);
+				const keyName = NAMING[state.language].baseNote(baseNote, mode);
+				
+				// solution data
+				element.key = key;
+				element.mode = mode;
+
+				element.innerText = keyName;
+				element.onclick = proposeKeyAndMode;
+			})
+		}
+
+		// inversion 
+		document.querySelectorAll("#solution-options-inversion td").forEach(function(element, i){
+			element.inversion = i;
+
+			element.innerText = NAMING[state.language].inversion[i];
+			element.onclick = proposeInversion;
+		})	
+
+		// generate first chord
+		nextChord();
+		refreshStats();
 	</script>
 
 

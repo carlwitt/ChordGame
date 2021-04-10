@@ -54,7 +54,7 @@ const NAMING = {
 	'english': {
 		'suffix': {'major': ' major', 'minor': ' minor'}, 
 		'inversion': ['Root position', '1. inversion', '2. inversion'],
-		'baseNote': function(baseNote, mode) { return baseNote; },
+		'baseNote': function(baseNote, mode) { return mode == 'minor' ? baseNote.toLowerCase() : baseNote; },
 		'apply': function(baseNote, mode, inversion){
 			return this.baseNote(baseNote, mode) + naming.suffix[mode] + ", " + naming.inversion[inversion];
 		}}

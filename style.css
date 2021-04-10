@@ -80,9 +80,16 @@ tbody td {
     cursor: crosshair;
 }
 
-#solution-options-major td:hover,
-#solution-options-minor td:hover{
-	background: aliceblue;
+#solution-options tr.solution.option td:hover, #solution-options-inversion td:hover{
+	background-color: aliceblue;
+	outline: 1px solid lightgray;
+	outline-offset: -1px;
+}
+
+.selected{
+	background-color: aliceblue;
+	outline: 2px solid gray !important;
+	outline-offset: -2px !important;
 }
 
 .tried.correct{
@@ -103,15 +110,6 @@ input#nextTask{
     display: inline-block;
 }
 
-.scroller{
-	width: 2em;
-	height: 33px;
-	line-height: 33px;
-	font-size: 22px;
-	overflow: hidden;
-	scroll-behavior: smooth;
-	display: inline-block;
-}
 
 a.wrong{
 	background: lightsalmon;
@@ -123,5 +121,6 @@ a.correct{
 
 div#stats{
 	margin-top: 10px;
+	margin-bottom: 10px;
 	text-align: center;
 }
