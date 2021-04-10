@@ -8,29 +8,42 @@
  * Persistent State
  * ------------------------------------------------------------------------ */
 
+var storage;
+var state;
+
 function loadState(){
-	state = JSON.parse(localStorage.chordGameState);
+	state = JSON.parse(storage.chordGameState);
 }
 
 function persistState(){
-	localStorage.chordGameState = JSON.stringify(state);
+	storage.chordGameState = JSON.stringify(state);
 	refreshStats();
 }
 
 var defaultState = {
-		// the range of the circle of fifths that is covered. This will generate triads from keys C ± maxAccidentals, 
-		// e.g., 1 => F, C, and G 
-		'maxAccidentals': 6,
-		'language': 'german',
-		'correctAnswers': 0,
-		'wrongAnswers': 0
-	};
+	// the range of the circle of fifths that is covered. This will generate triads from keys C ± maxAccidentals, 
+	// e.g., 1 => F, C, and G 
+	'maxAccidentals': 6,
+	'language': 'german',
+	'correctAnswers': 0,
+	'wrongAnswers': 0
+};
 
-if(localStorage.chordGameState){
+// replace local storage by a simple object in case it is not available
+// options won't be persisted, but we don't get exceptions
+try {
+	localStorage.setItem(mod, mod);
+	localStorage.removeItem(mod);
+	storage = localStorage;
+} catch (e) {
+	storage = {};
+}
+
+// load previous state if available from local storage
+if(storage.chordGameState){
 	loadState();
 } else{ 
 	state = defaultState;
-	persistState();
 }
 
 /* ------------------------------------------------------------------------
