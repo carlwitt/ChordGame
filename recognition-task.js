@@ -11,23 +11,31 @@
 var storage;
 var state;
 
+var defaultState = {
+	// the range of the circle of fifths that is covered. This will generate triads from keys C ± maxAccidentals, 
+	// e.g., 1 => F, C, and G 
+	'maxAccidentals': 5,
+	'language': 'german',
+	// allowed chord inversions to generate randomly
+	'allowedInversions': [0, 1, 2],
+	'correctAnswers': 0,
+	'wrongAnswers': 0
+};
+
 function loadState(){
 	state = JSON.parse(storage.chordGameState);
+	const expectedFields = Object.getOwnPropertyNames(defaultState);
+	for (var i = expectedFields.length - 1; i >= 0; i--) {
+		if(! state.hasOwnProperty(expectedFields[i])){
+			state[expectedFields[i]] = defaultState[expectedFields[i]];
+		}
+	}
 }
 
 function persistState(){
 	storage.chordGameState = JSON.stringify(state);
 	refreshStats();
 }
-
-var defaultState = {
-	// the range of the circle of fifths that is covered. This will generate triads from keys C ± maxAccidentals, 
-	// e.g., 1 => F, C, and G 
-	'maxAccidentals': 5,
-	'language': 'german',
-	'correctAnswers': 0,
-	'wrongAnswers': 0
-};
 
 // replace local storage by a simple object in case it is not available
 // options won't be persisted, but we don't get exceptions
@@ -102,7 +110,7 @@ function resetAnswer(){
 }
 
 function nextChord(){
-	random = randomTriad(state.maxAccidentals); 
+	random = randomTriad(state.maxAccidentals, state.allowedInversions); 
 	solution.key = random['key'];
 	solution.inversion = random['inversion'];
 	solution.mode = random['mode'];

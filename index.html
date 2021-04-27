@@ -12,7 +12,10 @@
 </head>
 <body>
 	<div id="settings">
-		Tonarten mit bis zu <span id="label_maxAccidentals"></span> Vorzeichen <input type="range" id="input_maxAccidentals" min="0" max="6" value="5" /> 
+		Tonarten mit bis zu <span id="label_maxAccidentals"></span> Vorzeichen <input type="range" id="input_maxAccidentals" min="0" max="6" value="5" /> <br/>
+		<label><input type="checkbox" id="allow_inversion_0"></input></label>
+		<label><input type="checkbox" id="allow_inversion_1"></input></label>
+		<label><input type="checkbox" id="allow_inversion_2"></input></label> <br/>
 		Sprache <select id="input_language"><option>german</option><option>english</option></select>
 	</div>
 	<div id="stats">
@@ -101,6 +104,24 @@
 			persistState();
 		};
 		accidentalsInput.onchange();
+
+		// inversion selection
+		const inversionInputs = [
+			document.getElementById('allow_inversion_0'),
+			document.getElementById('allow_inversion_1'),
+			document.getElementById('allow_inversion_2')
+		];
+		for(i=0; i<inversionInputs.length; i++){
+			inversionInputs[i].checked = state.allowedInversions.indexOf(i) != -1;
+			inversionInputs[i].inversion = i;
+			inversionInputs[i].parentNode.appendChild(document.createTextNode( NAMING[state.language].inversion[i]));
+			inversionInputs[i].onchange = function(){
+				const modified = state.allowedInversions.filter((elem, offset) => elem != this.inversion);
+				if(this.checked){modified.push(this.inversion)};
+				state.allowedInversions = modified;
+				persistState();
+			}
+		}
 
 		// language select
 		const languageInput = document.getElementById('input_language');

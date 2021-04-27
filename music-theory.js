@@ -121,13 +121,13 @@ function triad(key, mode){
 	return notes;
 }
 
-function randomTriad(maxAccidentals){
+function randomTriad(maxAccidentals, allowedInversions){
 	var key = randInt(1 + maxAccidentals*2) + (6 - maxAccidentals);
 	var mode = modes[randInt(2)];
 	return {
 		'key': key,
 		'mode': mode,
-		'inversion': randInt(3),
+		'inversion': allowedInversions[randInt(allowedInversions.length)],
 		'chord': triad(key, mode)
 	};
 }
