@@ -77,6 +77,9 @@ var solveAttempt = {
 	'inversion': null		
 }
 
+// avoid asking the same chord twice
+var lastChord = null;
+
 /* ------------------------------------------------------------------------
  * Logic
  * ------------------------------------------------------------------------ */
@@ -110,7 +113,17 @@ function resetAnswer(){
 }
 
 function nextChord(){
-	random = randomTriad(state.maxAccidentals, state.allowedInversions); 
+
+	// generate random chords until a chord is generated that is not equal to the previously generated
+	// but limit the attempts
+	for (var i = 0; i < 10; i++) {
+		random = randomTriad(state.maxAccidentals, state.allowedInversions); 
+		if(lastChord !== JSON.stringify(random)) {
+			lastChord = JSON.stringify(random);
+			break;	
+		}
+	}
+	
 	solution.key = random['key'];
 	solution.inversion = random['inversion'];
 	solution.mode = random['mode'];
