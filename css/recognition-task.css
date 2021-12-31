@@ -1,46 +1,9 @@
-* {
-	font-weight: normal;
-	font-family: system-ui;
-	user-select: none;
-}
 
-#settings{
-	margin-bottom: 10px;
-	text-align: center;
+/* the keyboard */
+svg {
+    top: 30px;
 }
-
-.wrap {
-  width: 500px;
-  height: 290px;
-  position: absolute;
-  top: 50%;
-  margin-top: -145px;
-  left: 50%;
-  margin-left: -250px;
-}
-
-#svg {
-  top: 30px;
-}
-
-rect.key {
-	stroke: black;
-	stroke-miterlimit: 1;
-}
-rect.key.white {
-	fill: white;
-	stroke-width: 4px;
-	width: 98.5043946px;
-	height: 463.871582px;
-}
-
-rect.black.key {
-	fill: black;
-	stroke-width: 5px;
-	width: 62.0385742px;
-	height: 281.9633789px;
-}
-
+  
 .key.highlight{
 	fill: #8da0cb !important;
 }
@@ -72,7 +35,14 @@ rect.black.key {
 	border-radius: 13px;
 }
 
-tbody td {
+thead td {
+	font-weight: 500;
+	color: gray;
+    border-bottom: 1px solid lightgray;
+}
+
+
+td {
     width: 7%;
     text-align: center;
     height: 3em;
@@ -117,10 +87,4 @@ a.wrong{
 
 a.correct{
 	background: springgreen;
-}
-
-div#stats{
-	margin-top: 10px;
-	margin-bottom: 10px;
-	text-align: center;
 }

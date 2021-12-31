@@ -1,15 +1,13 @@
 /**
  * Code related to recognizing chords displayed on the keyboard.
- * A random chord is generated with the music theory logic and the properties (key, mode, inversion) are saved to the state variables.
- * On clicking one of the chords in the scrollers, the selected chord's properties are compared to the state and the solution is marked as wrong or correct accordingly.
+ * A random chord is generated and its properties (key, mode, inversion) are saved to the state variables.
+ * On clicking one of the chords the solution is marked as wrong or correct accordingly.
  */
 
 /* ------------------------------------------------------------------------
  * Persistent State
  * ------------------------------------------------------------------------ */
 
-var storage;
-var state;
 
 var defaultState = {
 	// the range of the circle of fifths that is covered. This will generate triads from keys C ± maxAccidentals, 
@@ -21,32 +19,6 @@ var defaultState = {
 	'correctAnswers': 0,
 	'wrongAnswers': 0
 };
-
-function loadState(){
-	state = JSON.parse(storage.chordGameState);
-	const expectedFields = Object.getOwnPropertyNames(defaultState);
-	for (var i = expectedFields.length - 1; i >= 0; i--) {
-		if(! state.hasOwnProperty(expectedFields[i])){
-			state[expectedFields[i]] = defaultState[expectedFields[i]];
-		}
-	}
-}
-
-function persistState(){
-	storage.chordGameState = JSON.stringify(state);
-	refreshStats();
-}
-
-// replace local storage by a simple object in case it is not available
-// options won't be persisted, but we don't get exceptions
-try {
-	localStorage.setItem('test', 'test');
-	localStorage.removeItem('test');
-	storage = localStorage;
-} catch (e) {
-	storage = {};
-	console.log("No local storage available.")
-}
 
 // load previous state if available from local storage
 if(storage.chordGameState){
@@ -88,9 +60,17 @@ function solveIfComplete(){
 	// if a part of the solution is null, don't solve yet
 	for(part in solveAttempt) if(solveAttempt[part] == null) return;
 	
-	if(solveAttempt.key == solution.key &&
-	   solveAttempt.mode == solution.mode &&
-	   solveAttempt.inversion == solution.inversion){
+	var keysMatch = 
+		solveAttempt.key == solution.key ||
+		// from the keys on the keyboard, Gb is indistinguishable from F#
+		solveAttempt.key == 12 && solution.key == 0 ||
+		solveAttempt.key == 0 && solution.key == 12;
+
+	var modesInversionsMatch =
+		solveAttempt.mode == solution.mode &&
+		solveAttempt.inversion == solution.inversion;
+
+	if(keysMatch && modesInversionsMatch){
   		correctAnswerGiven();
 		highlightSolution();
 	} else {

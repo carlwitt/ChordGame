@@ -4,15 +4,21 @@
 <meta charset="utf-8">
 <title>Chord Game</title>
 
-<link href="style.css" rel="stylesheet">
+<link href="css/style.css" rel="stylesheet">
+<link href="css/keyboard.css" rel="stylesheet">
+<link href="css/recognition-task.css" rel="stylesheet">
 
-<script type="text/javascript" src="music-theory.js"></script>
-<script type="text/javascript" src="recognition-task.js"></script>
+<script type="text/javascript" src="lib/vexflow-min.js"></script>
+<script type="text/javascript" src="js/common.js"></script>
+<script type="text/javascript" src="js/music-theory.js"></script>
+<script type="text/javascript" src="js/recognition-task.js"></script>
 
 </head>
 <body>
+
+	<!-- TODO: the height should adapt to the content, not be fixed-->
 	<svg xmlns="&ns_svg;" xmlns:xlink="&ns_xlink;" xmlns:a="http://ns.adobe.com/AdobeSVGViewerExtensions/3.0/"
-	 width="100%" height="400" viewBox="-2 -2 1400 480" xml:space="preserve">
+	 width="100%" viewBox="1 -2 1400 480" xml:space="preserve">
 		<defs>
 		</defs>
 		<g>
@@ -49,31 +55,18 @@
 			<rect class="black key" note="A" x="1269.7988281"/> 
 		</g>
 	</svg>
-	<input type="button" value="Nächster Akkord" id="nextTask" onclick="nextChord()" />
-	<!-- <div id="solution"></div> -->
+
+	<input type="button" value="" id="nextTask" onclick="nextChord()"/>
 	<table id="solution-options" style="width:100%; margin-top: 16px; font-weight: bold; font-size: large;">
-		<!-- <tr>
-			<td>2.</td><td>2.</td><td>2.</td><td>2.</td><td>2.</td><td>2.</td><td>2.</td><td>2.</td><td>2.</td><td>2.</td><td>2.</td><td>2.</td>
-		</tr>
-		<tr>
-			<td>1.</td><td>1.</td><td>1.</td><td>1.</td><td>1.</td><td>1.</td><td>1.</td><td>1.</td><td>1.</td><td>1.</td><td>1.</td><td>1.</td>
-		</tr> -->
-		<tr>
+		<thead>
 			<td>6♭</td><td>5♭</td><td>4♭</td><td>3♭</td><td>2♭</td><td>♭</td><td></td><td>♯</td><td>2♯</td><td>3♯</td><td>4♯</td><td>5♯</td><td>6♯</td>
-		</tr>
+		</thead>
 		<tr class="solution option major">
 			<td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td>
 		</tr>
 		<tr class="solution option minor">
 			<td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td>
 		</tr>
-		<!-- <tr>
-			<td>1.</td><td>1.</td><td>1.</td><td>1.</td><td>1.</td><td>1.</td><td>1.</td><td>1.</td><td>1.</td><td>1.</td><td>1.</td><td>1.</td>
-		</tr>
-		<tr>
-			<td>2.</td><td>2.</td><td>2.</td><td>2.</td><td>2.</td><td>2.</td><td>2.</td><td>2.</td><td>2.</td><td>2.</td><td>2.</td><td>2.</td>
-		</tr> -->
-
 	</table>
 	<table id="solution-options-inversion">
 		<tr><td class="base"></td><td class="first"></td><td class="second"></td></tr>
@@ -97,6 +90,8 @@
 	<script type="text/javascript">
 		// wire options control elements to state variables
 
+		document.getElementById("nextTask").value = NAMING[state.language].nextChord;
+		
 		// number of accidentals
 		const accidentalsInput = document.getElementById('input_maxAccidentals');
 		accidentalsInput.value = state.maxAccidentals;
@@ -179,6 +174,42 @@
 		// generate first chord
 		nextChord();
 		refreshStats();
+	</script>
+
+	<script type="text/javascript">
+		VF = Vex.Flow;
+		VF.DEFAULT_FONT_STACK = [VF.Fonts.Bravura, VF.Fonts.Gonville, VF.Fonts.Custom];
+
+		// Create an SVG renderer and attach it to the DIV element named "boo".
+		var div = document.getElementById("notationDisplay")
+		var renderer = new VF.Renderer(div, VF.Renderer.Backends.SVG);
+
+		// Configure the rendering context.
+		renderer.resize(190, 120);
+		// view box 0 10 140 100 seems to work fine
+		var context = renderer.getContext();
+		context.scale(2.5, 2.5);
+		context.setFont("Arial", 10, "").setBackgroundFillStyle("#eed");
+
+		// Create a stave of width 400 at position 10, 40 on the canvas.
+		var stave = new VF.Stave(0, 0, 125);
+
+		// Add a clef and time signature.
+		stave.addClef("treble"); //.addTimeSignature("4/4")
+
+		// Connect it to the rendering context and draw!
+		stave.setContext(context).draw();
+
+		var notes = [
+		  new VF.StaveNote({
+		    keys: ['c/4', 'e/4', 'g/4'],
+		    duration: "2"
+		  }).addAccidental(2, new VF.Accidental("b"))
+		  .addAccidental(1, new VF.Accidental("#"))
+		];
+
+		VF.Formatter.FormatAndDraw(context, stave, notes);
+
 	</script>
 
 

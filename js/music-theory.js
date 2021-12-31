@@ -49,7 +49,8 @@ const NAMING = {
 		 },
 		'apply': function(baseNote, mode, inversion){
 			return this.baseNote(baseNote, mode) + this.suffix[mode] + ", " + this.inversion[inversion];
-		}
+		},
+		'nextChord': "Nächster Akkord"
 	},
 	'english': {
 		'suffix': {'major': ' major', 'minor': ' minor'}, 
@@ -57,7 +58,9 @@ const NAMING = {
 		'baseNote': function(baseNote, mode) { return mode == 'minor' ? baseNote.toLowerCase() : baseNote; },
 		'apply': function(baseNote, mode, inversion){
 			return this.baseNote(baseNote, mode) + naming.suffix[mode] + ", " + naming.inversion[inversion];
-		}}
+		},
+		'nextChord': "Next Chord"
+	}
 };
 
 /* ------------------------------------------------------------------------

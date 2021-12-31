@@ -1,0 +1,19 @@
+/** Style of the keys on the keyboard. */
+
+rect.key {
+	stroke: black;
+	stroke-miterlimit: 1;
+}
+rect.key.white {
+	fill: white;
+	stroke-width: 4px;
+	width: 98.5043946px;
+	height: 463.871582px;
+}
+
+rect.black.key {
+	fill: black;
+	stroke-width: 5px;
+	width: 62.0385742px;
+	height: 281.9633789px;
+}

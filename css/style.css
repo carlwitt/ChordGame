@@ -1,0 +1,26 @@
+* {
+	font-weight: normal;
+	font-family: system-ui;
+	user-select: none;
+}
+
+#settings{
+	margin-bottom: 10px;
+	text-align: center;
+}
+
+.wrap {
+  width: 500px;
+  height: 290px;
+  position: absolute;
+  top: 50%;
+  margin-top: -145px;
+  left: 50%;
+  margin-left: -250px;
+}
+
+div#stats{
+	margin-top: 10px;
+	margin-bottom: 10px;
+	text-align: center;
+}
