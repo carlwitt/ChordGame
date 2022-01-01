@@ -4,6 +4,7 @@ rect.key {
 	stroke: black;
 	stroke-miterlimit: 1;
 }
+
 rect.key.white {
 	fill: white;
 	stroke-width: 4px;

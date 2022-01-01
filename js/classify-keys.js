@@ -190,9 +190,84 @@ function highlightKeys(cssClasses, keyIndices){
 */
 function refreshStats(){
 	const stats = getStats();
-	document.getElementById('correctAnswers').innerText = stats.correct;
-	const totalAnswers = stats.correct + stats.wrong;
-	document.getElementById('totalAnswers').innerText = totalAnswers;
-	document.getElementById('percentageCorrectAnswers').innerText = totalAnswers == 0 ? 0 : Math.round(100 * stats.correct / totalAnswers);
+	const total = stats.correct + stats.wrong;
+	const correctWidthPercent = total == 0 ? 100 : Math.round(100 * stats.correct / total);
+	document.getElementById('correctAnswers').innerText = total == 0 ? '' : stats.correct;
+	document.getElementById('correctAnswers').parentElement.style.width = `${correctWidthPercent}%`;
+
+	document.getElementById('wrongAnswers').innerText = stats.wrong;
+	document.getElementById('wrongAnswers').parentElement.style.width = `${100-correctWidthPercent}%`;
+	
 }
 
+/* ------------------------------------------------------------------------
+ * Setup after loading the HTML
+ * ------------------------------------------------------------------------ */
+
+function initializeGame(){
+
+	keyElements = Array.from(document.getElementsByClassName('key'));
+	keyElements.sort((r1,r2)=>r1.attributes.x.value - r2.attributes.x.value);
+
+	// bind actions to  solution elements
+	document.querySelectorAll('.solution-option.key-and-mode td').forEach((e, i) => e.onclick = proposeKeyAndMode);
+	document.querySelectorAll('.solution-option.inversion td').forEach((e, i) => e.onclick = proposeInversion);
+
+	/**
+	 * Translation
+	 */
+	for(const elem of document.all){
+		if('english' in elem.dataset){
+			elem.insertAdjacentText('afterbegin', state.language in elem.dataset ? elem.dataset[state.language] : elem.dataset.english);
+		} 
+	} 
+	// change language by reloading
+	document.getElementById('input_language').onchange = function(){
+		state.language = this.value;
+		persistState();
+		window.location.reload();
+	};
+
+	/** 
+	 * Preferences: select which inversions to allow when generating random chords. 
+	 */
+	const inversionInputs = document.querySelectorAll('.allow-inversion');
+	inversionInputs.forEach((e, i) => e.onchange = function(){
+			state.allowedInversions = [];
+			for(const invInput of inversionInputs) {
+				if(invInput.checked) state.allowedInversions.push(invInput.dataset.inversion);
+			}
+			persistState();
+		}
+	);
+
+	/** 
+	 * Preferences: select how many accidentals to allow when generating random chords. 
+	 */
+	const accidentalsInput = document.getElementById('input_maxAccidentals');
+	accidentalsInput.onchange = function(){
+		state.maxAccidentals = this.value;
+		document.getElementById('label_maxAccidentals').innerText = state.maxAccidentals;
+		persistState();
+	};
+
+	/** 
+	 * Restore preferences 
+	 */
+	// number of accidentals
+	accidentalsInput.value = state.maxAccidentals;
+	accidentalsInput.onchange();
+
+	// inversion selection
+	inversionInputs.forEach((e, i) => e.checked = state.allowedInversions.indexOf(e.dataset.inversion) != -1);
+
+	// language select
+	const languageInput = document.getElementById('input_language');
+	for(i=0; i<languageInput.options.length; i++){
+		if(languageInput.options[i].innerText == state.language) languageInput.selectedIndex = i;
+	}
+
+	// generate first chord
+	nextChord();
+	refreshStats();
+}
