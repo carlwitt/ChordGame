@@ -36,32 +36,20 @@ const accidentals = {
 	'flat':  [6, 2, 5, 1, 4, 0, 3],
 };
 
-const NAMING = {
-	'german': {
-		'suffix': {'major': '-Dur', 'minor': '-Moll'}, 
-		// in german, we want B -> H and B♭ -> B
-		'nameTranslator': function(englishName){return englishName.replace('B', 'H').replace('H'+FLAT_SYMBOL, 'B')},
-		'inversion': ['Grundstellung', '1. Umkehrung', '2. Umkehrung'],
-		'baseNote': function(baseNote, mode){
-			var name = this.nameTranslator(baseNote);
-			if(mode == 'minor') name = name.toLowerCase();
-			return name;
-		 },
-		'apply': function(baseNote, mode, inversion){
-			return this.baseNote(baseNote, mode) + this.suffix[mode] + ", " + this.inversion[inversion];
-		},
-		'nextChord': "Nächster Akkord"
-	},
-	'english': {
-		'suffix': {'major': ' major', 'minor': ' minor'}, 
-		'inversion': ['Root position', '1. inversion', '2. inversion'],
-		'baseNote': function(baseNote, mode) { return mode == 'minor' ? baseNote.toLowerCase() : baseNote; },
-		'apply': function(baseNote, mode, inversion){
-			return this.baseNote(baseNote, mode) + naming.suffix[mode] + ", " + naming.inversion[inversion];
-		},
-		'nextChord': "Next Chord"
-	}
-};
+const keysToNotes = [
+	/*0*/ ['B'+SHARP_SYMBOL, 'C'],
+	/*1*/ ['C'+SHARP_SYMBOL, 'D'+FLAT_SYMBOL],
+	/*2*/ ['D'],
+	/*3*/ ['D'+SHARP_SYMBOL, 'E'+FLAT_SYMBOL],
+	/*4*/ ['E', 'F'+FLAT_SYMBOL],
+	/*5*/ ['E'+SHARP_SYMBOL, 'F'],
+	/*6*/ ['F'+SHARP_SYMBOL, 'G'+FLAT_SYMBOL],
+	/*7*/ ['G'],
+	/*8*/ ['G'+SHARP_SYMBOL, 'A'+FLAT_SYMBOL],
+	/*9*/ ['A'],
+	/*10*/ ['A'+SHARP_SYMBOL, 'B'+FLAT_SYMBOL],
+	/*11*/ ['B', 'C'+FLAT_SYMBOL]
+]
 
 /* ------------------------------------------------------------------------
  * Logical Functions
@@ -74,12 +62,10 @@ function randInt(upperExclusive){
 
 // takes a note name, e.g., "C#" and returns the enharmonic equivalent, e.g., "Db"
 function enharmonicEquivalent(noteName){
-	
 	var baseNote = baseNotes.indexOf(noteName[0]);
 
 	if(noteName.includes(SHARP_SYMBOL)) return baseNotes[baseNote+1] + FLAT_SYMBOL;
 	if(noteName.includes(FLAT_SYMBOL)) return baseNotes[baseNote-1] + SHARP_SYMBOL;
-
 }
 
 // returns the name of the note at the given base note offset (e.g., 0 = C, 1 = D ... 6 = B) 
@@ -124,6 +110,11 @@ function triad(key, mode){
 	return notes;
 }
 
+/**
+ * 
+ * @param {int} maxAccidentals the returned key has at most this many sharps or flats
+ * @param {[int]} allowedInversions 
+ */
 function randomTriad(maxAccidentals, allowedInversions){
 	var key = randInt(1 + maxAccidentals*2) + (6 - maxAccidentals);
 	var mode = modes[randInt(2)];
@@ -145,4 +136,23 @@ function inversion(n, chord){
 		inverted.push(inverted.shift());
 	}
 	return inverted;
+}
+
+/**
+ * Return the offsets of the keys on the keyboard that represent the given note names.
+ * For instance:
+ *  ['C', 'Eb', 'G'] -> [0, 3, 7]
+ *  ['Gb', 'Bb', 'Db'] -> [6, 10, 1]
+ *  ['F#', 'A#', 'C#'] -> [6, 10, 1]
+ * 
+ * @param {[String]} chord 
+ */
+function noteNamesToKeyIndices(chord){
+	let result = [];
+	for(const noteName of chord){
+		for(let keyIndex = 0; keyIndex < 12; keyIndex++){
+			if(keysToNotes[keyIndex].indexOf(noteName) > -1) result.push(keyIndex);
+		}
+	}
+	return result;
 }

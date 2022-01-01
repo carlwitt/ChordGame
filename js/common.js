@@ -1,3 +1,6 @@
+/**
+ * Local storage to persist preferences and statistics.
+ */
 var storage;
 var state;
 
@@ -25,4 +28,32 @@ try {
 } catch (e) {
 	storage = {};
 	console.log("No local storage available.")
+}
+
+/**
+ * Task performance statistics.
+ * 
+ * To track how good someone is doing on a task.
+ */
+function getStats(){
+	return {
+		'correct': state.correctAnswers,
+		'wrong': state.wrongAnswers
+	}	
+}
+
+function correctAnswerGiven(){
+	state.correctAnswers++;
+	persistState();
+}
+
+function wrongAnswerGiven(){
+	state.wrongAnswers++;
+	persistState();
+}
+
+function resetStats(){
+	state.correctAnswers = 0;
+	state.wrongAnswers = 0;
+	persistState();
 }

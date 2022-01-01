@@ -8,209 +8,195 @@
 <link href="css/keyboard.css" rel="stylesheet">
 <link href="css/recognition-task.css" rel="stylesheet">
 
-<script type="text/javascript" src="lib/vexflow-min.js"></script>
 <script type="text/javascript" src="js/common.js"></script>
 <script type="text/javascript" src="js/music-theory.js"></script>
 <script type="text/javascript" src="js/recognition-task.js"></script>
 
 </head>
 <body>
-
-	<!-- TODO: the height should adapt to the content, not be fixed-->
 	<svg xmlns="&ns_svg;" xmlns:xlink="&ns_xlink;" xmlns:a="http://ns.adobe.com/AdobeSVGViewerExtensions/3.0/"
 	 width="100%" viewBox="1 -2 1400 480" xml:space="preserve">
-		<defs>
-		</defs>
+		<!-- the notes represented by a key are coded from 0 (B#, C), 1 (C#, Db) to 11 (B, Cb)-->
 		<g>
 			<!-- white keys -->
-			<rect class="white key C" x="2.0"/>
-			<rect class="white key D" x="101.8823242"/>
-			<rect class="white key E" x="201.7651367"/>
-			<rect class="white key F" x="301.6445313"/>
-			<rect class="white key G" x="401.5273438"/>
-			<rect class="white key A" x="501.6308594"/>
-			<rect class="white key B" x="601.5078125"/>
+			<rect class="white key" data-keyindex="0" x="2.0"/>
+			<rect class="white key" data-keyindex="2" x="101.8823242"/>
+			<rect class="white key" data-keyindex="4" x="201.7651367"/>
+			<rect class="white key" data-keyindex="5" x="301.6445313"/>
+			<rect class="white key" data-keyindex="7" x="401.5273438"/>
+			<rect class="white key" data-keyindex="9" x="501.6308594"/>
+			<rect class="white key" data-keyindex="11" x="601.5078125"/>
 
-			<rect class="white key C" x="701.3896484"/>
-			<rect class="white key D" x="801.2675781"/>
-			<rect class="white key E" x="901.1503906"/>
-			<rect class="white key F" x="1001.0292969"/>
-			<rect class="white key G" x="1100.9121094"/>
-			<rect class="white key A" x="1201.015625"/>
-			<rect class="white key B" x="1300.8925781"/>
+			<rect class="white key" data-keyindex="0" x="701.3896484"/>
+			<rect class="white key" data-keyindex="2" x="801.2675781"/>
+			<rect class="white key" data-keyindex="4" x="901.1503906"/>
+			<rect class="white key" data-keyindex="5" x="1001.0292969"/>
+			<rect class="white key" data-keyindex="7" x="1100.9121094"/>
+			<rect class="white key" data-keyindex="9" x="1201.015625"/>
+			<rect class="white key" data-keyindex="11" x="1300.8925781"/>
 
 			<!-- black keys (need to be declared after the white keys to render them above the white keys) 
 				 They have their notes annotated to add a css class for each accidental,
 				 e.g., note=D ==> add D# and Eb as CSS classes -->
-			<rect class="black key" note="C" x="70.7202148"/>
-			<rect class="black key" note="D" x="171.2246094"/>
-			<rect class="black key" note="F" x="370.5078125"/>
-			<rect class="black key" note="G" x="470.6118164"/>
-			<rect class="black key" note="A" x="570.4882813"/>
+			<rect class="black key" data-keyindex="1" x="70.7202148"/>
+			<rect class="black key" data-keyindex="3" x="171.2246094"/>
+			<rect class="black key" data-keyindex="6" x="370.5078125"/>
+			<rect class="black key" data-keyindex="8" x="470.6118164"/>
+			<rect class="black key" data-keyindex="10" x="570.4882813"/>
 
-			<rect class="black key" note="C" x="770.0351563"/> 
-			<rect class="black key" note="D" x="870.5351563"/> 
-			<rect class="black key" note="F" x="1069.8183594"/> 
-			<rect class="black key" note="G" x="1169.9228516"/> 
-			<rect class="black key" note="A" x="1269.7988281"/> 
+			<rect class="black key" data-keyindex="1" x="770.0351563"/> 
+			<rect class="black key" data-keyindex="3" x="870.5351563"/> 
+			<rect class="black key" data-keyindex="6" x="1069.8183594"/> 
+			<rect class="black key" data-keyindex="8" x="1169.9228516"/> 
+			<rect class="black key" data-keyindex="10" x="1269.7988281"/> 
 		</g>
 	</svg>
 
-	<input type="button" value="" id="nextTask" onclick="nextChord()"/>
-	<table id="solution-options" style="width:100%; margin-top: 16px; font-weight: bold; font-size: large;">
+	<button data-english="Next Chord" data-german="Nächster Akkord" type="button" id="nextTask" onclick="nextChord()"></button>
+	
+	<table id="solution-options"style="width:100%; margin-top: 16px; font-weight: bold; font-size: large;">
 		<thead>
 			<td>6♭</td><td>5♭</td><td>4♭</td><td>3♭</td><td>2♭</td><td>♭</td><td></td><td>♯</td><td>2♯</td><td>3♯</td><td>4♯</td><td>5♯</td><td>6♯</td>
 		</thead>
-		<tr class="solution option major">
-			<td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td>
+		<tr class="solution-option key-and-mode" data-mode="major">
+			<td data-key="0" data-english="G♭"></td>
+			<td data-key="1" data-english="D♭"></td>
+			<td data-key="2" data-english="A♭"></td>
+			<td data-key="3" data-english="E♭"></td>
+			<td data-key="4" data-english="B♭" data-german="B"></td>
+			<td data-key="5" data-english="F"></td>
+			<td data-key="6" data-english="C"></td>
+			<td data-key="7" data-english="G"></td>
+			<td data-key="8" data-english="D"></td>
+			<td data-key="9" data-english="A"></td>
+			<td data-key="10" data-english="E"></td>
+			<td data-key="11" data-english="B" data-german="H"></td>
+			<td data-key="12" data-english="F♯"></td>
 		</tr>
-		<tr class="solution option minor">
-			<td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td>
+		<tr class="solution-option key-and-mode" data-mode="minor">
+			<td data-key="0" data-english="e♭"></td>
+			<td data-key="1" data-english="b♭" data-german="b"></td>
+			<td data-key="2" data-english="f"></td>
+			<td data-key="3" data-english="c"></td>
+			<td data-key="4" data-english="g"></td>
+			<td data-key="5" data-english="d"></td>
+			<td data-key="6" data-english="a"></td>
+			<td data-key="7" data-english="e"></td>
+			<td data-key="8" data-english="b" data-german="h"></td>
+			<td data-key="9" data-english="f♯"></td>
+			<td data-key="10" data-english="c♯"></td>
+			<td data-key="11" data-english="g♯"></td>
+			<td data-key="12" data-english="d♯"></td>
 		</tr>
 	</table>
-	<table id="solution-options-inversion">
-		<tr><td class="base"></td><td class="first"></td><td class="second"></td></tr>
+	<table>
+		<tr class="solution-option inversion">
+			<td data-inversion="0" data-english="Root position" data-german="Grundstellung"></td>
+			<td data-inversion="1" data-english="1st inversion" data-german="1. Umkehrung"></td>
+			<td data-inversion="2" data-english="2nd inversion" data-german="2. Umkehrung"></td>
+		</tr>
 	</table>
 
 	<div id="stats">
-		Richtig: <span id="correctAnswers"></span>/<span id="totalAnswers"></span> = <span id="percentageCorrectAnswers"></span>%<!-- <br/> -->
+		<span data-english="Correct" data-german="Richtig"></span>
+		<span id="correctAnswers"></span>/<span id="totalAnswers"></span>
+		 = <span id="percentageCorrectAnswers"></span>%
 		<input type="button" value="Reset" onclick="if(confirm('Reset?')) resetStats()"/>
 	</div>
 
-
 	<div id="settings">
-		Tonarten mit bis zu <span id="label_maxAccidentals"></span> Vorzeichen <input type="range" id="input_maxAccidentals" min="0" max="6" value="5" /> <br/>
-		<label><input type="checkbox" id="allow_inversion_0"></input></label>
-		<label><input type="checkbox" id="allow_inversion_1"></input></label>
-		<label><input type="checkbox" id="allow_inversion_2"></input></label> <br/>
-		Sprache <select id="input_language"><option>german</option><option>english</option></select>
+		<!-- Accidentals -->
+		<span data-english="Keys with up to " data-german="Tonarten mit bis zu "></span>
+		<span id="label_maxAccidentals"></span>
+		<span data-english="accidentals" data-german="Vorzeichen"></span>
+		<input type="range" id="input_maxAccidentals" min="0" max="6" value="5" /> <br/>
+		
+		<!-- Inversions -->
+		<label data-english="Root position" data-german="Grundstellung">
+			<input type="checkbox" class="allow-inversion" data-inversion="0"></input>
+		</label>
+		<label data-english="1st inversion" data-german="1. Umkehrung">
+			<input type="checkbox" class="allow-inversion" data-inversion="1"></input>
+		</label>
+		<label data-english="2nd inversion" data-german="2. Umkehrung">
+			<input type="checkbox" class="allow-inversion" data-inversion="2"></input>
+		</label>
+		<br/>
+
+		<!-- Language -->
+		<span data-english="Language" data-german="Sprache"></span>
+		<select id="input_language">
+			<option value="german" data-english="german" data-german="Deutsch"></option>
+			<option value="english" data-english="english" data-german="Englisch"></option>
+		</select>
 	</div>
 
-
 	<script type="text/javascript">
-		// wire options control elements to state variables
 
-		document.getElementById("nextTask").value = NAMING[state.language].nextChord;
+		var keyElements = Array.from(document.getElementsByClassName('key'));
+		keyElements.sort((r1,r2)=>r1.attributes.x.value - r2.attributes.x.value);
+
+		// bind actions to  solution elements
+		document.querySelectorAll('.solution-option.key-and-mode td').forEach((e, i) => e.onclick = proposeKeyAndMode);
+		document.querySelectorAll('.solution-option.inversion td').forEach((e, i) => e.onclick = proposeInversion);
 		
-		// number of accidentals
+		/**
+		 * Translation
+		 */
+		for(const elem of document.all){
+			if('english' in elem.dataset){
+				elem.insertAdjacentText('afterbegin', state.language in elem.dataset ? elem.dataset[state.language] : elem.dataset.english);
+			} 
+		} 
+		// change language by reloading
+		document.getElementById('input_language').onchange = function(){
+			state.language = this.value;
+			persistState();
+			window.location.reload();
+		};
+
+		/** 
+		 * Preferences: select which inversions to allow when generating random chords. 
+		 */
+		const inversionInputs = document.querySelectorAll('.allow-inversion');
+		inversionInputs.forEach((e, i) => e.onchange = function(){
+				state.allowedInversions = [];
+				for(const invInput of inversionInputs) {
+					if(invInput.checked) state.allowedInversions.push(invInput.dataset.inversion);
+				}
+				persistState();
+			}
+		);
+
+		/** 
+		 * Preferences: select how many accidentals to allow when generating random chords. 
+		 */
 		const accidentalsInput = document.getElementById('input_maxAccidentals');
-		accidentalsInput.value = state.maxAccidentals;
 		accidentalsInput.onchange = function(){
 			state.maxAccidentals = this.value;
 			document.getElementById('label_maxAccidentals').innerText = state.maxAccidentals;
 			persistState();
 		};
+
+		/** 
+		 * Restore preferences 
+		 */
+		// number of accidentals
+		accidentalsInput.value = state.maxAccidentals;
 		accidentalsInput.onchange();
 
 		// inversion selection
-		const inversionInputs = [
-			document.getElementById('allow_inversion_0'),
-			document.getElementById('allow_inversion_1'),
-			document.getElementById('allow_inversion_2')
-		];
-		for(i=0; i<inversionInputs.length; i++){
-			inversionInputs[i].checked = state.allowedInversions.indexOf(i) != -1;
-			inversionInputs[i].inversion = i;
-			inversionInputs[i].parentNode.appendChild(document.createTextNode( NAMING[state.language].inversion[i]));
-			inversionInputs[i].onchange = function(){
-				const modified = state.allowedInversions.filter((elem, offset) => elem != this.inversion);
-				if(this.checked){modified.push(this.inversion)};
-				state.allowedInversions = modified;
-				persistState();
-			}
-		}
+		inversionInputs.forEach((e, i) => e.checked = state.allowedInversions.indexOf(e.dataset.inversion) != -1);
 
 		// language select
 		const languageInput = document.getElementById('input_language');
 		for(i=0; i<languageInput.options.length; i++){
 			if(languageInput.options[i].innerText == state.language) languageInput.selectedIndex = i;
 		}
-		document.getElementById('input_language').onchange = function(){
-			state.language = this.value;
-			persistState();
-			window.location.reload();
-		};
-	
-		// add classes the piano keys that state their note name(s)
-		// get the SVG elements that represent the piano keys
-		var keyElements = Array.from(document.getElementsByClassName('key'));
-		// sort the keys by horizontal position, such that we get C, C#, D, D#, etc.
-		keyElements.sort((r1,r2)=>r1.attributes.x.value - r2.attributes.x.value)
-
-		// add css classes to black keys that use SHARP_SYMBOL and FLAT_SYMBOL
-		Array.from(document.getElementsByClassName('black key')).forEach(rect => {
-			baseNote = rect.attributes.note.value;
-			sharp = baseNote + SHARP_SYMBOL;
-			flat = enharmonicEquivalent(sharp);
-			rect.classList.add(sharp, flat);
-		});
-
-		// list all major/minor chords as solution options in order of the circle of fifths
-		for(const mode of modes){
-			const options = document.querySelectorAll(`.solution.option.${mode} td`);
-			options.forEach(function(element, i){
-				// fill the table cell with the chord's base note name
-				const key = i;
-				const baseNote = applyAccidental(key, keys[mode].baseNote[key]);
-				const keyName = NAMING[state.language].baseNote(baseNote, mode);
-				
-				// solution data
-				element.key = key;
-				element.mode = mode;
-
-				element.innerText = keyName;
-				element.onclick = proposeKeyAndMode;
-			})
-		}
-
-		// inversion 
-		document.querySelectorAll("#solution-options-inversion td").forEach(function(element, i){
-			element.inversion = i;
-
-			element.innerText = NAMING[state.language].inversion[i];
-			element.onclick = proposeInversion;
-		})	
 
 		// generate first chord
 		nextChord();
 		refreshStats();
 	</script>
-
-	<script type="text/javascript">
-		VF = Vex.Flow;
-		VF.DEFAULT_FONT_STACK = [VF.Fonts.Bravura, VF.Fonts.Gonville, VF.Fonts.Custom];
-
-		// Create an SVG renderer and attach it to the DIV element named "boo".
-		var div = document.getElementById("notationDisplay")
-		var renderer = new VF.Renderer(div, VF.Renderer.Backends.SVG);
-
-		// Configure the rendering context.
-		renderer.resize(190, 120);
-		// view box 0 10 140 100 seems to work fine
-		var context = renderer.getContext();
-		context.scale(2.5, 2.5);
-		context.setFont("Arial", 10, "").setBackgroundFillStyle("#eed");
-
-		// Create a stave of width 400 at position 10, 40 on the canvas.
-		var stave = new VF.Stave(0, 0, 125);
-
-		// Add a clef and time signature.
-		stave.addClef("treble"); //.addTimeSignature("4/4")
-
-		// Connect it to the rendering context and draw!
-		stave.setContext(context).draw();
-
-		var notes = [
-		  new VF.StaveNote({
-		    keys: ['c/4', 'e/4', 'g/4'],
-		    duration: "2"
-		  }).addAccidental(2, new VF.Accidental("b"))
-		  .addAccidental(1, new VF.Accidental("#"))
-		];
-
-		VF.Formatter.FormatAndDraw(context, stave, notes);
-
-	</script>
-
 
 </body>

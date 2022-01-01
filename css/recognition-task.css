@@ -8,18 +8,18 @@ svg {
 	fill: #8da0cb !important;
 }
 
-.key.highlight.triad__prime{
+.key.triad__prime{
 	/* should stick out, stronger red */
-	fill:  #fb8150 !important; 
+	fill:  #d95f0e !important; 
 }
-.key.highlight.triad__third{
+.key.triad__third{
 	/* light blue */
-	fill:  #a8b6d7 !important;
+	fill:  #fec44f !important;
 	/* brewer blue #8da0cb */
 }
-.key.highlight.triad__fifth{
+.key.triad__fifth{
 	/* light red (more compatible to prime than third) */
-	fill: #fdc9b5 !important;
+	fill: #fff7bc !important;
 }
 
 #solution{
@@ -66,13 +66,14 @@ td {
 	background: red;
 }
 
-input#nextTask{
+#nextTask{
 	margin-left: 50%;
     position: relative;
     width: 200px;
     left: -100px;
     height: 50px;
-	  	font-size: large;
+    font-size: large;
+    border-radius: 5px;
 }
 
 .solution.option a {

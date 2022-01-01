@@ -1,13 +1,12 @@
 /**
  * Code related to recognizing chords displayed on the keyboard.
  * A random chord is generated and its properties (key, mode, inversion) are saved to the state variables.
- * On clicking one of the chords the solution is marked as wrong or correct accordingly.
+ * On clicking one of the chords, the solution is marked as wrong or correct accordingly.
  */
 
 /* ------------------------------------------------------------------------
  * Persistent State
  * ------------------------------------------------------------------------ */
-
 
 var defaultState = {
 	// the range of the circle of fifths that is covered. This will generate triads from keys C ± maxAccidentals, 
@@ -56,6 +55,59 @@ var lastChord = null;
  * Logic
  * ------------------------------------------------------------------------ */
 
+/**
+ * Sets the hidden state to a new chord.
+ */
+function nextChord(){
+	// generate random chords until a chord is generated that is not equal to the previously generated
+	// but limit the attempts
+	for (var i = 0; i < 25; i++) {
+		random = randomTriad(state.maxAccidentals, state.allowedInversions); 
+		if(lastChord !== JSON.stringify(random)) {
+			lastChord = JSON.stringify(random);
+			break;	
+		}
+	}
+	
+	solution.key = random['key'];
+	solution.inversion = random['inversion'];
+	solution.mode = random['mode'];
+	solution.chord = random['chord'];
+
+	highlightTask();
+}
+
+/* ------------------------------------------------------------------------
+ * View
+ * ------------------------------------------------------------------------ */
+
+
+function proposeKeyAndMode(mouseEvent){
+	solveAttempt.key = mouseEvent.srcElement.dataset.key;
+	solveAttempt.mode = mouseEvent.srcElement.parentElement.dataset.mode;
+	
+	// unselect all key options
+	document.querySelectorAll(".solution-option.key-and-mode td").forEach(function(element, i){element.classList.remove("selected")});	
+	mouseEvent.srcElement.classList.add('selected');
+	
+	solveIfComplete();
+}
+
+function proposeInversion(mouseEvent){
+	solveAttempt.inversion = mouseEvent.srcElement.dataset.inversion;
+	
+	// unselect all inversion options
+	document.querySelectorAll(".solution-option.inversion td").forEach(function(element, i){element.classList.remove("selected")});
+	mouseEvent.srcElement.classList.add('selected');
+	
+	solveIfComplete();
+}
+
+/**
+ * If all parts of an answer (key, mode, inversion) are present, checks them. Otherwise doese nothing.
+ * If the check succeeds, highlights the solution. 
+ * @returns true, iff the chord was classified correctly
+ */
 function solveIfComplete(){
 	// if a part of the solution is null, don't solve yet
 	for(part in solveAttempt) if(solveAttempt[part] == null) return;
@@ -81,132 +133,61 @@ function solveIfComplete(){
 	return true;
 }
 
+/**
+ * Unselect the selected key and inversion (after correct and wrong solution)
+ */
 function resetAnswer(){
 	solveAttempt.key = null;
 	solveAttempt.mode = null;
 	solveAttempt.inversion = null;
 	
-	// unselect all key options
-	document.querySelectorAll("#solution-options td").forEach(function(element, i){element.classList.remove("selected")});	
-	// unselect all inversion options
-	document.querySelectorAll("#solution-options-inversion td").forEach(function(element, i){element.classList.remove("selected")});
+	document.querySelectorAll(".solution-option td").forEach((e, i) => e.classList.remove("selected"));	
 }
 
-function nextChord(){
-
-	// generate random chords until a chord is generated that is not equal to the previously generated
-	// but limit the attempts
-	for (var i = 0; i < 10; i++) {
-		random = randomTriad(state.maxAccidentals, state.allowedInversions); 
-		if(lastChord !== JSON.stringify(random)) {
-			lastChord = JSON.stringify(random);
-			break;	
-		}
-	}
-	
-	solution.key = random['key'];
-	solution.inversion = random['inversion'];
-	solution.mode = random['mode'];
-	solution.chord = random['chord'];
-	highlightKeys();
+/**
+ * Highlights the keys on the keyboard that correspond to the current chord to classify.
+ */
+function highlightTask(){
+	const noteNames = inversion(solution.inversion, solution.chord);
+	const keyIndices = noteNamesToKeyIndices(noteNames);
+	highlightKeys(['highlight'], keyIndices);
 }
 
-function proposeKeyAndMode(mouseEvent){
-	solveAttempt.key = mouseEvent.srcElement.key;
-	solveAttempt.mode = mouseEvent.srcElement.mode;
-	
-	// unselect all key options
-	document.querySelectorAll("#solution-options td").forEach(function(element, i){element.classList.remove("selected")});	
-	mouseEvent.srcElement.classList.add('selected');
-	
-	solveIfComplete();
-}
-
-function proposeInversion(mouseEvent){
-	solveAttempt.inversion = mouseEvent.srcElement.inversion;
-	
-	// unselect all inversion options
-	document.querySelectorAll("#solution-options-inversion td").forEach(function(element, i){element.classList.remove("selected")});
-	mouseEvent.srcElement.classList.add('selected');
-	
-	solveIfComplete();
-}
-
-function removeAttemptSelection(what){
-	
-	
-}
-
-
-
-function getStats(){
-	return {
-		'correct': state.correctAnswers,
-		'wrong': state.wrongAnswers
-	}	
-}
-
-function correctAnswerGiven(){
-	state.correctAnswers++;
-	persistState();
-}
-
-function wrongAnswerGiven(){
-	state.wrongAnswers++;
-	persistState();
-}
-
-function resetStats(){
-	state.correctAnswers = 0;
-	state.wrongAnswers = 0;
-	persistState();
-}
-
-/* ------------------------------------------------------------------------
- * View
- * ------------------------------------------------------------------------ */
-
-// takes an array of note names (e.g., ['E, G, C']) and highlights the according keys on the piano
-function highlightKeys(){
-	
-	var chord = inversion(solution.inversion, solution.chord);
-
-	// the chord's note to highlight, e.g., first, second third, maybe fourth
-	var toHighlight = 0;
-	for (var i = 0; i < keyElements.length; i++) {
-		// reset previous highlighting
-		keyElements[i].classList.remove('highlight', 'triad__prime', 'triad__third', 'triad__fifth');
-		// apply new highlighting
-		if(keyElements[i].classList.contains(chord[toHighlight])){
-			keyElements[i].classList.add('highlight');
-			toHighlight++;
-		}
-	}
-
-}
-
-// colors the highlighted keys according to their function: prime, third, or fifth
+/**
+ * Colors the keys on the keyboard according to their function: prime, third, or fifth.
+ */
 function highlightSolution(){
-	
-	// use this classes to show which key belongs to which note
-	var highlightClasses = inversion(solution.inversion, ['triad__prime', 'triad__third', 'triad__fifth']);
-	var chord = inversion(solution.inversion, solution.chord);
+	const noteNames = inversion(solution.inversion, solution.chord);
+	const keyIndices = noteNamesToKeyIndices(noteNames);
+	const  highlightClasses = inversion(solution.inversion, ['triad__prime', 'triad__third', 'triad__fifth']);
+	highlightKeys(highlightClasses, keyIndices);
+}
 
-	// the chord's note to highlight, e.g., first, second third, maybe fourth
+/**
+ * Iterates through the keyboard keys lowest to highest. 
+ * For each key that matches a key index, applies the next of given css classes instead.
+ * Removes all highlight classes from all keys.
+ * 
+ * @param {[string]} cssClasses 
+ * @param {[int]} keyIndices 
+ */
+function highlightKeys(cssClasses, keyIndices){
+	// the chord's note to highlight
 	var toHighlight = 0;
-	for (var i = 0; i < keyElements.length; i++) {
+	for (const keyElement of keyElements) {
 		// reset previous highlighting
-		keyElements[i].classList.remove('highlight', 'triad__prime', 'triad__third', 'triad__fifth');
+		keyElement.classList.remove('highlight', 'triad__prime', 'triad__third', 'triad__fifth');
 		// apply new highlighting
-		if(keyElements[i].classList.contains(chord[toHighlight])){
-			keyElements[i].classList.add('highlight');
-			keyElements[i].classList.add(highlightClasses[toHighlight]);
+		if(keyElement.dataset.keyindex == keyIndices[toHighlight]){
+			keyElement.classList.add(cssClasses[toHighlight % cssClasses.length]);
 			toHighlight++;
 		}
 	}
 }
 
-// show the number of correct and wrong answers given so far
+/*
+* Sow the number of correct and wrong answers given so far.
+*/
 function refreshStats(){
 	const stats = getStats();
 	document.getElementById('correctAnswers').innerText = stats.correct;
