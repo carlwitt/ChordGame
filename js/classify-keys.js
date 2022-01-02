@@ -9,7 +9,7 @@
  * ------------------------------------------------------------------------ */
 
 var defaultState = {
-	'language': 'german',
+	'language': 'english',
 	// generate chords in every possible key up to 6 flats or 6 sharps
 	'allowedAccidentals': {'sharp': 6, 'flat': 6},
 	// generate chords in major and minor
