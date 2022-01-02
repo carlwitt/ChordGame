@@ -7,6 +7,8 @@ const modes = ['major', 'minor'];
 
 const FLAT_SYMBOL = '♭'; // b ♭
 const SHARP_SYMBOL = '♯'; // # ♯
+const DOUBLE_SHARP_SYMBOL = '𝄪';
+const DOUBLE_FLAT_SYMBOL = '𝄫';
 
 const baseNotes = ['C', 'D', 'E', 'F', 'G', 'A', 'B'];
 
@@ -36,19 +38,20 @@ const accidentals = {
 	'flat':  [6, 2, 5, 1, 4, 0, 3],
 };
 
+// The note names associated to the twelve distinct keys on the keyboard
 const keysToNotes = [
-	/*0*/ ['B'+SHARP_SYMBOL, 'C'],
-	/*1*/ ['C'+SHARP_SYMBOL, 'D'+FLAT_SYMBOL],
-	/*2*/ ['D'],
-	/*3*/ ['D'+SHARP_SYMBOL, 'E'+FLAT_SYMBOL],
-	/*4*/ ['E', 'F'+FLAT_SYMBOL],
-	/*5*/ ['E'+SHARP_SYMBOL, 'F'],
-	/*6*/ ['F'+SHARP_SYMBOL, 'G'+FLAT_SYMBOL],
-	/*7*/ ['G'],
-	/*8*/ ['G'+SHARP_SYMBOL, 'A'+FLAT_SYMBOL],
-	/*9*/ ['A'],
-	/*10*/ ['A'+SHARP_SYMBOL, 'B'+FLAT_SYMBOL],
-	/*11*/ ['B', 'C'+FLAT_SYMBOL]
+	/*0*/ ['B♯', 'C', 'D𝄫'],
+	/*1*/ ['B𝄪', 'C♯', 'D♭'],
+	/*2*/ ['C𝄪', 'D', 'E𝄫'],
+	/*3*/ ['D♯', 'E♭', 'F𝄫'],
+	/*4*/ ['D𝄪', 'E', 'F♭'],
+	/*5*/ ['E♯', 'F', 'G𝄫'],
+	/*6*/ ['E𝄪', 'F♯', 'G♭'],
+	/*7*/ ['F𝄪', 'G', 'A𝄫'],
+	/*8*/ ['G♯', 'A♭'],
+	/*9*/ ['G𝄪', 'A', 'B𝄫'],
+	/*10*/ ['A♯', 'B♭', 'C𝄫'],
+	/*11*/ ['A𝄪', 'B', 'C♭']
 ]
 
 /* ------------------------------------------------------------------------
@@ -60,21 +63,31 @@ function randInt(upperExclusive){
 	return Math.floor(Math.random() * upperExclusive);
 }
 
-// takes a note name, e.g., "C#" and returns the enharmonic equivalent, e.g., "Db"
-function enharmonicEquivalent(noteName){
-	var baseNote = baseNotes.indexOf(noteName[0]);
-
-	if(noteName.includes(SHARP_SYMBOL)) return baseNotes[baseNote+1] + FLAT_SYMBOL;
-	if(noteName.includes(FLAT_SYMBOL)) return baseNotes[baseNote-1] + SHARP_SYMBOL;
+function randElement(array){
+	return array[randInt(array.length)];
 }
 
-// returns the name of the note at the given base note offset (e.g., 0 = C, 1 = D ... 6 = B) 
-// within the given key (e.g., 9 = A major)
-// e.g., applyAccidental(9, 0) = 'C♯'
-function applyAccidental(key, noteOffset){
+/**
+ * Cyclic array indexing for indices < 0 and for indices ≥ array.length.
+ * E.g., cyclic([1,2,3], -1) -> 3
+ * @param {[obj]} array 
+ * @param {int} index 
+ * @returns the element when cycling index times forwards or backwards through the array
+ */
+function cyclic(array, index){
+	return array[(index + Math.abs(index) * array.length) % array.length];
+}
 
-	// e.g. [3, 0, 4] for f♯, c♯, g♯, in A major
+/**
+ * For instance, applyAccidental(9, 0) = apply accidental(A major, C) = 'C♯'
+ * @param {int} key 0 ≤ key ≤ 12 where 0 corresponds to Gb and 12 corresponds to F#
+ * @param {} noteOffset 0 ≤ noteOffset ≤ 6 where 0 = C, 1 = D ... 6 = B
+ * @returns the name of the note at the given base note offset in the given key 
+ */
+function applyAccidental(key, noteOffset){
+	// e.g., 3 sharps for A major
 	var numSharps = keys.accidentals.sharp[key];
+	// e.g. [3, 0, 4] for f♯, c♯, g♯, in A major
 	var sharps = accidentals.sharp.slice(0, numSharps);
 	
 	var numFlats = keys.accidentals.flat[key];
@@ -98,6 +111,11 @@ function addNote(key, noteOffset, steps){
 	return applyAccidental(key, note);
 }
 
+/**
+ * @param {int} key 0 ≤ key ≤ 12 where 0 corresponds to Gb and 12 corresponds to F#
+ * @param {string} either 'major' or 'minor' 
+ * @returns the three notes that constitute the root position of the chord in the given key and mode.
+ */
 function triad(key, mode){
 	var baseNote = keys[mode].baseNote[key];
 	var notes = [
@@ -111,17 +129,22 @@ function triad(key, mode){
 }
 
 /**
- * 
- * @param {int} maxAccidentals the returned key has at most this many sharps or flats
- * @param {[int]} allowedInversions 
+ * Generates three notes from a key, mode, and inversion according to the given limitations.
+ * @param {int} maxFlats the returned key has at most this many flats
+ * @param {int} maxSharps the returned key has at most this many sharps
+ * @param {[string]} allowedModes 'major' or 'minor'
+ * @param {[int]} allowedInversions 0, 1, or 2 for root position, 1st, and 2nd inversion 
  */
-function randomTriad(maxAccidentals, allowedInversions){
-	var key = randInt(1 + maxAccidentals*2) + (6 - maxAccidentals);
-	var mode = modes[randInt(2)];
+function randomTriad(maxFlats, maxSharps, allowedModes, allowedInversions){
+	const numKeys = 1 + maxFlats + maxSharps; // number of keys that can be generated: C + sharp keys + flat keys
+	const lowestKey = 6 - maxFlats; // key 0 represents Gb, key 1 represents Db, etc.
+	const key = lowestKey + randInt(numKeys);
+
+	const mode = randElement(allowedModes);
 	return {
 		'key': key,
 		'mode': mode,
-		'inversion': allowedInversions[randInt(allowedInversions.length)],
+		'inversion': randElement(allowedInversions),
 		'chord': triad(key, mode)
 	};
 }

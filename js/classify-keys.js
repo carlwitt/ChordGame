@@ -9,11 +9,12 @@
  * ------------------------------------------------------------------------ */
 
 var defaultState = {
-	// the range of the circle of fifths that is covered. This will generate triads from keys C ± maxAccidentals, 
-	// e.g., 1 => F, C, and G 
-	'maxAccidentals': 5,
 	'language': 'german',
-	// allowed chord inversions to generate randomly
+	// generate chords in every possible key up to 6 flats or 6 sharps
+	'allowedAccidentals': {'sharp': 6, 'flat': 6},
+	// generate chords in major and minor
+	'allowedModes': ['major', 'minor'],
+	// generate chords with all possible inversions
 	'allowedInversions': [0, 1, 2],
 	'correctAnswers': 0,
 	'wrongAnswers': 0
@@ -61,8 +62,11 @@ var lastChord = null;
 function nextChord(){
 	// generate random chords until a chord is generated that is not equal to the previously generated
 	// but limit the attempts
-	for (var i = 0; i < 25; i++) {
-		random = randomTriad(state.maxAccidentals, state.allowedInversions); 
+	for (var i = 0; i < 50; i++) {
+		random = randomTriad(state.allowedAccidentals['flat'],
+			state.allowedAccidentals['sharp'],
+			state.allowedModes.length == 0 ? modes : state.allowedModes,
+			state.allowedInversions); 
 		if(lastChord !== JSON.stringify(random)) {
 			lastChord = JSON.stringify(random);
 			break;	
@@ -80,7 +84,6 @@ function nextChord(){
 /* ------------------------------------------------------------------------
  * View
  * ------------------------------------------------------------------------ */
-
 
 function proposeKeyAndMode(mouseEvent){
 	solveAttempt.key = mouseEvent.srcElement.dataset.key;
@@ -229,37 +232,59 @@ function initializeGame(){
 	};
 
 	/** 
+	 * Preferences: select how many accidentals to allow when generating random chords. 
+	 */
+	const maxAccidentalsInputs = document.querySelectorAll('#input_maxSharps,#input_maxFlats');
+	
+	function accidentalRangeChanged(){
+		const sharpOrFlat = this.dataset.accidental;
+		state.allowedAccidentals[sharpOrFlat] = parseInt(this.value);
+		this.parentElement.getElementsByClassName(`range-input-value`)[0].innerText = this.value;
+		persistState();
+	};
+
+	maxAccidentalsInputs.forEach((e,i)=>e.onchange = accidentalRangeChanged);
+
+	/** 
+	 * Preferences: select the mode to generate the chords in
+	 */
+	const modeInputs = document.querySelectorAll('input.allow-mode');
+	modeInputs.forEach((e, i) => e.onchange = function(){
+		state.allowedModes = [];
+		for(const modeInput of modeInputs) {
+			if(modeInput.checked) state.allowedModes.push(modeInput.dataset.mode);
+		}
+		persistState();
+	});
+
+	/** 
 	 * Preferences: select which inversions to allow when generating random chords. 
 	 */
 	const inversionInputs = document.querySelectorAll('.allow-inversion');
 	inversionInputs.forEach((e, i) => e.onchange = function(){
 			state.allowedInversions = [];
 			for(const invInput of inversionInputs) {
-				if(invInput.checked) state.allowedInversions.push(invInput.dataset.inversion);
+				if(invInput.checked) state.allowedInversions.push(parseInt(invInput.dataset.inversion));
 			}
 			persistState();
 		}
 	);
 
 	/** 
-	 * Preferences: select how many accidentals to allow when generating random chords. 
-	 */
-	const accidentalsInput = document.getElementById('input_maxAccidentals');
-	accidentalsInput.onchange = function(){
-		state.maxAccidentals = this.value;
-		document.getElementById('label_maxAccidentals').innerText = state.maxAccidentals;
-		persistState();
-	};
-
-	/** 
 	 * Restore preferences 
 	 */
 	// number of accidentals
-	accidentalsInput.value = state.maxAccidentals;
-	accidentalsInput.onchange();
+	maxAccidentalsInputs.forEach((e,i)=>{
+		e.value = state.allowedAccidentals[e.dataset.accidental];
+		// update label
+		e.onchange();
+	});
+
+	// allowed modes
+	modeInputs.forEach((e, i) => e.checked = state.allowedModes.indexOf(e.dataset.mode) != -1);
 
 	// inversion selection
-	inversionInputs.forEach((e, i) => e.checked = state.allowedInversions.indexOf(e.dataset.inversion) != -1);
+	inversionInputs.forEach((e, i) => e.checked = state.allowedInversions.indexOf(parseInt(e.dataset.inversion)) != -1);
 
 	// language select
 	const languageInput = document.getElementById('input_language');

@@ -3,7 +3,7 @@
 
         <header class="d-flex flex-wrap justify-content-center py-3 mb-4 border-bottom">
             <a href="#" class="d-flex align-items-center mb-3 mb-md-0 me-md-auto text-dark text-decoration-none">
-                <span class="fs-4" data-english="What chord is this?" data-german="Wie heißt der Akkord?"></span>
+                <span class="fs-4" data-english="Which chord is this?" data-german="Wie heißt der Akkord?"></span>
             </a>
             <ul class="nav nav-pills">
                 <!-- <li class="nav-item"><a href="#" class="nav-link active" aria-current="page">Keyboard</a></li> -->
@@ -108,29 +108,48 @@
 		  <button type="button" class="btn-close text-reset" data-bs-dismiss="offcanvas" aria-label="Close"></button>
 		</div>
 		<div class="offcanvas-body">
-            <!-- Inversions -->
-            <h5 data-english="Inversions" data-german="Umkehrungen"></h5>
-            <div class="list-group mx-0">
-                <label class="list-group-item d-flex gap-2">
-                    <input type="checkbox" class="allow-inversion form-check-input" data-inversion="0"></input>
-                    <span data-english="Root position" data-german="Grundstellung"></span>
-                </label>
-                <label class="list-group-item d-flex gap-2">
-                    <input type="checkbox" class="allow-inversion form-check-input" data-inversion="1"></input>
-                    <span data-english="1st inversion" data-german="1. Umkehrung"></span>
-                </label>
-                <label class="list-group-item d-flex gap-2">
-                    <input type="checkbox" class="allow-inversion form-check-input" data-inversion="2"></input>
-                    <span data-english="2nd inversion" data-german="2. Umkehrung"></span>
-                </label>
+            <div>
+                <!-- Keys -->
+                <h5 data-english="Keys" data-german="Tonarten"></h5>
+                <div>
+                    <span data-english="Up to " data-german="Bis zu "></span>
+                    <span class="range-input-value">6</span>♭
+                    <input type="range" id="input_maxFlats" data-accidental="flat" min="0" max="6" value="6" class="form-range" />
+                </div>
+                <div>
+                    <span data-english="Up to " data-german="Bis zu "></span>
+                    <span class="range-input-value">6</span>♯
+                    <input type="range" id="input_maxSharps" data-accidental="sharp" min="0" max="6" value="6" class="form-range" />
+                </div>
+                <!-- Modes -->
+                <div class="list-group mx-0">
+                    <label class="list-group-item">
+                        <input type="checkbox" class="allow-mode form-check-input" data-mode="major"></input>
+                        <span data-english="major" data-german="Dur"></span>
+                    </label>
+                    <label class="list-group-item">
+                        <input type="checkbox" class="allow-mode form-check-input" data-mode="minor"></input>
+                        <span data-english="minor" data-german="moll"></span>
+                    </label>
+                </div>
             </div>
             <div class="pt-4">
-                <!-- Accidentals -->
-                <h5 data-english="Accidentals" data-german="Vorzeichen"></h5>
-                <span data-english="Keys with up to " data-german="Tonarten mit bis zu "></span>
-                <span id="label_maxAccidentals"></span>
-                <span data-english="accidentals" data-german="Vorzeichen"></span>
-                <input type="range" id="input_maxAccidentals" min="0" max="6" value="5" class="form-range" />
+              <!-- Inversions -->
+              <h5 data-english="Inversions" data-german="Umkehrungen"></h5>
+              <div class="list-group mx-0">
+                  <label class="list-group-item">
+                      <input type="checkbox" class="allow-inversion form-check-input" data-inversion="0"></input>
+                      <span data-english="Root position" data-german="Grundstellung"></span>
+                  </label>
+                  <label class="list-group-item">
+                      <input type="checkbox" class="allow-inversion form-check-input" data-inversion="1"></input>
+                      <span data-english="1st inversion" data-german="1. Umkehrung"></span>
+                  </label>
+                  <label class="list-group-item">
+                      <input type="checkbox" class="allow-inversion form-check-input" data-inversion="2"></input>
+                      <span data-english="2nd inversion" data-german="2. Umkehrung"></span>
+                  </label>
+              </div>  
             </div>
             <div class="pt-4">
                 <!-- Language -->
