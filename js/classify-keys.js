@@ -16,13 +16,15 @@ var defaultState = {
 	'allowedModes': ['major', 'minor'],
 	// generate chords with all possible inversions
 	'allowedInversions': [0, 1, 2],
+	// show visual clue on chords that be generated under above allowed* properties
+	'highlightEligibleSolutions': true,
 	'correctAnswers': 0,
 	'wrongAnswers': 0
 };
 
 // load previous state if available from local storage
 if(storage.chordGameState){
-	loadState();
+	loadState(defaultState);
 } else{ 
 	state = defaultState;
 }
@@ -51,6 +53,29 @@ var solveAttempt = {
 
 // avoid asking the same chord twice
 var lastChord = null;
+
+/* ------------------------------------------------------------------------
+ * Performance statistics
+ * ------------------------------------------------------------------------ */
+
+ function correctAnswerGiven(){
+	state.correctAnswers++;
+	persist(state);
+	refreshStats();
+}
+
+function wrongAnswerGiven(){
+	state.wrongAnswers++;
+	persist(state);
+	refreshStats();
+}
+
+function resetStats(){
+	state.correctAnswers = 0;
+	state.wrongAnswers = 0;
+	persist(state);
+	refreshStats();
+}
 
 /* ------------------------------------------------------------------------
  * Logic
@@ -192,15 +217,72 @@ function highlightKeys(cssClasses, keyIndices){
 * Sow the number of correct and wrong answers given so far.
 */
 function refreshStats(){
-	const stats = getStats();
-	const total = stats.correct + stats.wrong;
-	const correctWidthPercent = total == 0 ? 100 : Math.round(100 * stats.correct / total);
-	document.getElementById('correctAnswers').innerText = total == 0 ? '' : stats.correct;
+	const correct = state.correctAnswers;
+	const wrong = state.wrongAnswers;
+	const total = correct + wrong;
+
+	const correctWidthPercent = total == 0 ? 100 : Math.round(100 * correct / total);
+	document.getElementById('correctAnswers').innerText = total == 0 ? '' : correct;
 	document.getElementById('correctAnswers').parentElement.style.width = `${correctWidthPercent}%`;
 
-	document.getElementById('wrongAnswers').innerText = stats.wrong;
+	document.getElementById('wrongAnswers').innerText = wrong;
 	document.getElementById('wrongAnswers').parentElement.style.width = `${100-correctWidthPercent}%`;
-	
+}
+
+/**
+ * Puts a visual clue on the solution options (keys and inversions) that are ruled out by the
+ * limitations in the settings (e.g., no keys with more than three sharps).
+ */
+function highlightEligibleSolutionOptions(){
+	if(!state.highlightEligibleSolutions) return;
+
+	// keys
+	const lowestKey = 6 - state.allowedAccidentals.flat;
+	const highestKey = 6 + state.allowedAccidentals.sharp;
+	document.querySelectorAll('.solution-option.key-and-mode td').forEach((e, i)=>{
+		e.classList.remove('non-eligible');
+		const key = e.dataset.key;
+		const mode = e.parentElement.dataset.mode;
+		if(state.allowedModes.indexOf(mode) == -1 || key < lowestKey || key > highestKey) 
+			e.classList.add('non-eligible');
+	});
+
+	// inversions
+	document.querySelectorAll('.solution-option.inversion td').forEach((e, i)=>{
+		e.classList.remove('non-eligible');
+		if(state.allowedInversions.indexOf(parseInt(e.dataset.inversion)) == -1) 
+			e.classList.add('non-eligible');
+	});
+}
+
+/* ------------------------------------------------------------------------
+ * Preferences
+ * ------------------------------------------------------------------------ */
+
+function accidentalRangeChanged(e){
+	const sharpOrFlat = e.dataset.accidental;
+	state.allowedAccidentals[sharpOrFlat] = parseInt(e.value);
+	e.parentElement.getElementsByClassName(`range-input-value`)[0].innerText = e.value;
+	persist(state);
+	highlightEligibleSolutionOptions();
+};
+
+function modeSelectionChanged(){
+	state.allowedModes = [];
+	for(const modeInput of document.querySelectorAll('input.allow-mode')) {
+		if(modeInput.checked) state.allowedModes.push(modeInput.dataset.mode);
+	}
+	persist(state);
+	highlightEligibleSolutionOptions();
+}
+
+function inversionSelectionChanged(){
+	state.allowedInversions = [];
+	for(const invInput of document.querySelectorAll('.allow-inversion')) {
+		if(invInput.checked) state.allowedInversions.push(parseInt(invInput.dataset.inversion));
+	}
+	persist(state);
+	highlightEligibleSolutionOptions();
 }
 
 /* ------------------------------------------------------------------------
@@ -227,64 +309,30 @@ function initializeGame(){
 	// change language by reloading
 	document.getElementById('input_language').onchange = function(){
 		state.language = this.value;
-		persistState();
+		persist(state);
 		window.location.reload();
 	};
 
 	/** 
-	 * Preferences: select how many accidentals to allow when generating random chords. 
-	 */
-	const maxAccidentalsInputs = document.querySelectorAll('#input_maxSharps,#input_maxFlats');
-	
-	function accidentalRangeChanged(){
-		const sharpOrFlat = this.dataset.accidental;
-		state.allowedAccidentals[sharpOrFlat] = parseInt(this.value);
-		this.parentElement.getElementsByClassName(`range-input-value`)[0].innerText = this.value;
-		persistState();
-	};
-
-	maxAccidentalsInputs.forEach((e,i)=>e.onchange = accidentalRangeChanged);
-
-	/** 
-	 * Preferences: select the mode to generate the chords in
-	 */
-	const modeInputs = document.querySelectorAll('input.allow-mode');
-	modeInputs.forEach((e, i) => e.onchange = function(){
-		state.allowedModes = [];
-		for(const modeInput of modeInputs) {
-			if(modeInput.checked) state.allowedModes.push(modeInput.dataset.mode);
-		}
-		persistState();
-	});
-
-	/** 
-	 * Preferences: select which inversions to allow when generating random chords. 
-	 */
-	const inversionInputs = document.querySelectorAll('.allow-inversion');
-	inversionInputs.forEach((e, i) => e.onchange = function(){
-			state.allowedInversions = [];
-			for(const invInput of inversionInputs) {
-				if(invInput.checked) state.allowedInversions.push(parseInt(invInput.dataset.inversion));
-			}
-			persistState();
-		}
-	);
-
-	/** 
 	 * Restore preferences 
 	 */
-	// number of accidentals
-	maxAccidentalsInputs.forEach((e,i)=>{
+
+	// number of accidentals to allow when generating random chords. 
+	for(e of document.querySelectorAll('#input_maxSharps,#input_maxFlats')){
 		e.value = state.allowedAccidentals[e.dataset.accidental];
 		// update label
 		e.onchange();
-	});
+	}
 
-	// allowed modes
-	modeInputs.forEach((e, i) => e.checked = state.allowedModes.indexOf(e.dataset.mode) != -1);
+	// modes to generate chords in
+	for(e of document.querySelectorAll('input.allow-mode')){
+		e.checked = state.allowedModes.indexOf(e.dataset.mode) != -1;
+	}
 
-	// inversion selection
-	inversionInputs.forEach((e, i) => e.checked = state.allowedInversions.indexOf(parseInt(e.dataset.inversion)) != -1);
+	// select which inversions to allow when generating random chords. 
+	for(e of document.querySelectorAll('.allow-inversion')){
+		e.checked = state.allowedInversions.indexOf(parseInt(e.dataset.inversion)) != -1;
+	}
 
 	// language select
 	const languageInput = document.getElementById('input_language');

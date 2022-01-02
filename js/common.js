@@ -4,7 +4,7 @@
 var storage;
 var state;
 
-function loadState(){
+function loadState(defaultState){
 	state = JSON.parse(storage.chordGameState);
 	const expectedFields = Object.getOwnPropertyNames(defaultState);
 	for (var i = expectedFields.length - 1; i >= 0; i--) {
@@ -14,9 +14,12 @@ function loadState(){
 	}
 }
 
-function persistState(){
+/**
+ * Writes the given data to local storage.
+ * @param {obj} state 
+ */
+function persist(state){
 	storage.chordGameState = JSON.stringify(state);
-	refreshStats();
 }
 
 // replace local storage by a simple object in case it is not available
@@ -28,32 +31,4 @@ try {
 } catch (e) {
 	storage = {};
 	console.log("No local storage available.")
-}
-
-/**
- * Task performance statistics.
- * 
- * To track how good someone is doing on a task.
- */
-function getStats(){
-	return {
-		'correct': state.correctAnswers,
-		'wrong': state.wrongAnswers
-	}	
-}
-
-function correctAnswerGiven(){
-	state.correctAnswers++;
-	persistState();
-}
-
-function wrongAnswerGiven(){
-	state.wrongAnswers++;
-	persistState();
-}
-
-function resetStats(){
-	state.correctAnswers = 0;
-	state.wrongAnswers = 0;
-	persistState();
 }

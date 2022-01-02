@@ -48,12 +48,6 @@ td {
     cursor: pointer;
 }
 
-#solution-options tr.solution.option td:hover, #solution-options-inversion td:hover{
-	background-color: aliceblue;
-	outline: 1px solid lightgray;
-	outline-offset: -1px;
-}
-
 .selected{
 	background-color: aliceblue;
 	outline: 2px solid gray !important;
@@ -63,8 +57,8 @@ td {
 #nextTask{
 	margin-left: 50%;
     position: relative;
-    width: 200px;
-    left: -100px;
+    width: 194.06px;
+    left: -88px;
     height: 50px;
     font-size: large;
     border-radius: 5px;
@@ -75,7 +69,9 @@ td {
     display: inline-block;
 }
 
-
+.solution-option .non-eligible {
+	background-color: darkgray;
+}
 a.wrong{
 	background: lightsalmon;
 }

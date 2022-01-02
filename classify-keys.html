@@ -1,6 +1,5 @@
 <html>
     <body>
-
         <header class="d-flex flex-wrap justify-content-center py-3 mb-4 border-bottom">
             <a href="#" class="d-flex align-items-center mb-3 mb-md-0 me-md-auto text-dark text-decoration-none">
                 <span class="fs-4" data-english="Which chord is this?" data-german="Wie heißt der Akkord?"></span>
@@ -49,7 +48,7 @@
         </g>
     </svg>
         
-    <table id="solution-options"style="width:100%; margin-top: 16px; font-weight: bold; font-size: large;">
+    <table id="solution-options"style="width:100%; font-weight: bold; font-size: large;">
         <thead>
             <td>6♭</td><td>5♭</td><td>4♭</td><td>3♭</td><td>2♭</td><td>♭</td><td></td><td>♯</td><td>2♯</td><td>3♯</td><td>4♯</td><td>5♯</td><td>6♯</td>
         </thead>
@@ -84,15 +83,16 @@
             <td data-key="12" data-english="d♯"></td>
         </tr>
     </table>
-    <table>
+
+    <table style="width: 600px; margin: auto;">
         <tr class="solution-option inversion">
             <td data-inversion="0" data-english="Root position" data-german="Grundstellung"></td>
             <td data-inversion="1" data-english="1st inversion" data-german="1. Umkehrung"></td>
             <td data-inversion="2" data-english="2nd inversion" data-german="2. Umkehrung"></td>
         </tr>
     </table>
-    
-    <button data-english="Next Chord" data-german="Nächster Akkord" type="button" id="nextTask" onclick="nextChord()"></button>
+        
+    <button data-english="Next Chord" data-german="Nächster Akkord" id="nextTask" onclick="nextChord()" class="btn-outline-primary"></button>
 
     <div id="stats">
         <div class="progress"  onclick="if(confirm('Reset?')) resetStats()">
@@ -105,7 +105,7 @@
     <div class="offcanvas offcanvas-start" tabindex="-1" id="offcanvasExample">
 		<div class="offcanvas-header">
 		  <h5 class="offcanvas-title" data-english="Settings" data-german="Einstellungen"></h5>
-		  <button type="button" class="btn-close text-reset" data-bs-dismiss="offcanvas" aria-label="Close"></button>
+		  <button class="btn-close text-reset" data-bs-dismiss="offcanvas" aria-label="Close"></button>
 		</div>
 		<div class="offcanvas-body">
             <div>
@@ -114,21 +114,21 @@
                 <div>
                     <span data-english="Up to " data-german="Bis zu "></span>
                     <span class="range-input-value">6</span>♭
-                    <input type="range" id="input_maxFlats" data-accidental="flat" min="0" max="6" value="6" class="form-range" />
+                    <input type="range" onchange="accidentalRangeChanged(this)" id="input_maxFlats" data-accidental="flat" min="0" max="6" value="6" class="form-range" />
                 </div>
                 <div>
                     <span data-english="Up to " data-german="Bis zu "></span>
                     <span class="range-input-value">6</span>♯
-                    <input type="range" id="input_maxSharps" data-accidental="sharp" min="0" max="6" value="6" class="form-range" />
+                    <input type="range" onchange="accidentalRangeChanged(this)" id="input_maxSharps" data-accidental="sharp" min="0" max="6" value="6" class="form-range" />
                 </div>
                 <!-- Modes -->
                 <div class="list-group mx-0">
                     <label class="list-group-item">
-                        <input type="checkbox" class="allow-mode form-check-input" data-mode="major"></input>
+                        <input type="checkbox" onchange="modeSelectionChanged()" class="allow-mode form-check-input" data-mode="major"></input>
                         <span data-english="major" data-german="Dur"></span>
                     </label>
                     <label class="list-group-item">
-                        <input type="checkbox" class="allow-mode form-check-input" data-mode="minor"></input>
+                        <input type="checkbox" onchange="modeSelectionChanged()" class="allow-mode form-check-input" data-mode="minor"></input>
                         <span data-english="minor" data-german="moll"></span>
                     </label>
                 </div>
@@ -138,15 +138,15 @@
               <h5 data-english="Inversions" data-german="Umkehrungen"></h5>
               <div class="list-group mx-0">
                   <label class="list-group-item">
-                      <input type="checkbox" class="allow-inversion form-check-input" data-inversion="0"></input>
+                      <input type="checkbox" onchange="inversionSelectionChanged()" class="allow-inversion form-check-input" data-inversion="0"></input>
                       <span data-english="Root position" data-german="Grundstellung"></span>
                   </label>
                   <label class="list-group-item">
-                      <input type="checkbox" class="allow-inversion form-check-input" data-inversion="1"></input>
+                      <input type="checkbox" onchange="inversionSelectionChanged()" class="allow-inversion form-check-input" data-inversion="1"></input>
                       <span data-english="1st inversion" data-german="1. Umkehrung"></span>
                   </label>
                   <label class="list-group-item">
-                      <input type="checkbox" class="allow-inversion form-check-input" data-inversion="2"></input>
+                      <input type="checkbox" onchange="inversionSelectionChanged()" class="allow-inversion form-check-input" data-inversion="2"></input>
                       <span data-english="2nd inversion" data-german="2. Umkehrung"></span>
                   </label>
               </div>  
